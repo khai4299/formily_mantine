@@ -20,6 +20,7 @@
           "apps/formily-apps/src/favicon.ico",
           "apps/formily-apps/src/assets"
         ],
+        "postcssConfig": "apps/{your app here}/postcss.config.js",
         "styles": [],
         "scripts": [],
         "webpackConfig": "@nrwl/react/plugins/webpack"
