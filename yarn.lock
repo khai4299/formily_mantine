@@ -1651,6 +1651,13 @@
     "@radix-ui/react-scroll-area" "1.0.0"
     react-textarea-autosize "8.3.4"
 
+"@mantine/dates@^5.6.1":
+  version "5.6.1"
+  resolved "https://registry.yarnpkg.com/@mantine/dates/-/dates-5.6.1.tgz#b22b58180e9826a6076f92c1de88854f7fcfb74f"
+  integrity sha512-XFIuW0bCbYzWbNPOV0j9uFxt2Ic2UCx2SYhx109kYGufJoUGj7TcXO5HZ/JbbVe5bhvqOB5F9TRWpUFiWf3mNw==
+  dependencies:
+    "@mantine/utils" "5.6.1"
+
 "@mantine/hooks@^5.6.0":
   version "5.6.0"
   resolved "https://registry.yarnpkg.com/@mantine/hooks/-/hooks-5.6.0.tgz#4517a8d031b8004a04b6a99e7d091a7eea259c98"
@@ -1668,6 +1675,11 @@
   version "5.6.0"
   resolved "https://registry.yarnpkg.com/@mantine/utils/-/utils-5.6.0.tgz#e0515e9071704c3f91509cb0629383dbc677c86c"
   integrity sha512-HFe/B/Z6R9j7n0pcumaAl0yYeM+EbRPlZht0t5CP79nZcgz0ANUsnp3f3SGJA/Bc2spO0hd1Cr0daBb1liBMRg==
+
+"@mantine/utils@5.6.1":
+  version "5.6.1"
+  resolved "https://registry.yarnpkg.com/@mantine/utils/-/utils-5.6.1.tgz#5ab75c2185b5f64e78c70e1d0a5cbf56c9c1c8e9"
+  integrity sha512-pu7ajDLJfW9oMVfzK6DKkhuaayRiCEZLfB6Be+wbL9joWrzMCZkc0tA3KxET7TGSO98d4NpjjmbEg2IsjT8Alw==
 
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
@@ -4381,6 +4393,11 @@ dayjs@^1.10.4:
   version "1.11.5"
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.5.tgz#00e8cc627f231f9499c19b38af49f56dc0ac5e93"
   integrity sha512-CAdX5Q3YW3Gclyo5Vpqkgpj8fSdLQcRuzfX6mC6Phy0nfJ0eGYOeS7m4mt2plDWLAtA4TqTakvbboHvUxfe4iA==
+
+dayjs@^1.11.6:
+  version "1.11.6"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.6.tgz#2e79a226314ec3ec904e3ee1dd5a4f5e5b1c7afb"
+  integrity sha512-zZbY5giJAinCG+7AGaw0wIhNZ6J8AhWuSXKvuc1KAyMiRsvGQWqh4L+MomvhdAYjN+lqvVCMq1I41e3YHvXkyQ==
 
 debug@2.6.9, debug@^2.6.9:
   version "2.6.9"
@@ -8302,6 +8319,11 @@ react-dom@18.2.0:
   dependencies:
     loose-envify "^1.1.0"
     scheduler "^0.23.0"
+
+react-icons@^4.6.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-4.6.0.tgz#f83eda179af5d02c047449a20b702c858653d397"
+  integrity sha512-rR/L9m9340yO8yv1QT1QurxWQvWpbNHqVX0fzMln2HEb9TEIrQRGsqiNFQfiv9/JEUbyHmHPlNTB2LWm2Ttz0g==
 
 react-is@18.2.0, "react-is@^16.12.0 || ^17.0.0 || ^18.0.0", react-is@^18.0.0, react-is@^18.2.0:
   version "18.2.0"

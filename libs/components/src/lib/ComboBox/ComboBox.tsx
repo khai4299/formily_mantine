@@ -33,27 +33,10 @@ const ComboBox: FC<
 > = (props) => {
   const [options, setOptions] = useState<AutocompleteItem[]>([]);
 
-  const [defaultOptions, setDefaultOptions] = useState<AutocompleteItem[]>([]);
   const [searchValue, setSearchValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const { mutate } = useMutation(props.serverRequest, {
-    onSuccess: (data) => {
-      const optionsRes = data.map((item) => {
-        return {
-          ...item,
-          key: item.id,
-          value: item.name,
-          label: item[props.labelProp],
-        };
-      });
-      if (!searchValue) {
-        setDefaultOptions(optionsRes);
-      }
-      setIsLoading(false);
-      setOptions(optionsRes);
-    },
-  });
+  const { mutate } = useMutation(props.serverRequest);
   const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
     ({ label, ...propsItem }: SelectItemProps, ref) => (
       <div ref={ref} {...propsItem}>
@@ -67,8 +50,25 @@ const ComboBox: FC<
   );
   const onSearch = (search: string) => {
     if (search) {
-      mutate(search);
       console.log(123);
+      mutate(search, {
+        onSuccess: (data) => {
+          const optionsRes = data.map((item) => {
+            return {
+              ...item,
+              key: item.id,
+              value: item.name,
+              label: item[props.labelProp],
+            };
+          });
+          setIsLoading(false);
+          setOptions(optionsRes);
+        },
+        onError: () => {
+          setIsLoading(false);
+          setOptions([]);
+        },
+      });
     }
   };
   const debounceDropDown = useRef(
@@ -102,23 +102,19 @@ const ComboBox: FC<
         itemComponent={SelectItem}
         data={!isLoading ? options : []}
         onChange={(value: string) => {
-          if (!value) {
-            setOptions(defaultOptions);
-          } else {
-            setIsLoading(true);
-            debounceDropDown(value);
-          }
+          setIsLoading(true);
           setSearchValue(value);
+          debounceDropDown(value);
         }}
         onItemSubmit={(matcher) => {
           props.onChange?.(matcher);
         }}
+        placeholder={props.placeholder}
         value={searchValue}
         limit={options?.length}
         nothingFound={
           isLoading ? <Loader style={{ margin: 'auto' }} /> : 'No options'
         }
-        placeholder={props.placeholder}
       />
     </>
   );
