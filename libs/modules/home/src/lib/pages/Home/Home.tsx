@@ -1,20 +1,15 @@
-import { createSchemaField, FormProvider, FormConsumer } from '@formily/react';
-import {
-  createForm,
-  Form,
-  IFormState,
-  onFormSubmit,
-  onFormSubmitValidateFailed,
-  onFormSubmitValidateSuccess,
-} from '@formily/core';
+import { createSchemaField, FormProvider } from '@formily/react';
+import { createForm } from '@formily/core';
 import React from 'react';
 import {
+  ColorInput,
   ComboBox,
+  FormItem,
   Input,
   NumberInput,
+  PasswordInput,
   Select,
   TimeInput,
-  FormItem,
 } from '@formily-mantine/components';
 import { searchUsers } from '../../services';
 import { FiClock, FiSearch } from 'react-icons/fi';
@@ -22,12 +17,14 @@ import { FiClock, FiSearch } from 'react-icons/fi';
 const Home = () => {
   const SchemaField = createSchemaField({
     components: {
+      FormItem,
       Select,
       ComboBox,
       Input,
       NumberInput,
       TimeInput,
-      FormItem,
+      PasswordInput,
+      ColorInput,
     },
   });
   const schema = {
@@ -45,7 +42,6 @@ const Home = () => {
             'x-component': 'ComboBox',
             'x-component-props': {
               label: 'Select box',
-              labelClassName: 'font-semibold',
               placeholder: `enterSite`,
               required: true,
               labelProp: 'name',
@@ -56,43 +52,52 @@ const Home = () => {
           name: {
             'x-component': 'Input',
             'x-decorator': 'FormItem',
-
-            'x-validator': {
-              required: true,
-            },
             required: true,
             'x-component-props': {
               label: 'Select box',
-              labelClassName: 'font-semibold',
               placeholder: `enterSite`,
-              required: true,
               icon: <FiSearch />,
             },
           },
           age: {
             'x-component': 'NumberInput',
+            required: true,
+            'x-decorator': 'FormItem',
             'x-component-props': {
               label: 'Age',
-              labelClassName: 'font-semibold',
               placeholder: `enterSite`,
-              required: true,
               precision: 2,
               icon: <FiSearch />,
             },
           },
           birthDay: {
             'x-component': 'TimeInput',
-            'x-validator': {
-              required: true,
-            },
             required: true,
             'x-decorator': 'FormItem',
             'x-component-props': {
               label: 'Birthday',
-              required: true,
-              labelClassName: 'font-semibold',
+              clearable: true,
               placeholder: `enterSite`,
               icon: <FiClock />,
+            },
+          },
+          password: {
+            'x-component': 'PasswordInput',
+            required: true,
+            'x-decorator': 'FormItem',
+            'x-component-props': {
+              label: 'Password',
+              placeholder: `enterSite`,
+              icon: <FiClock />,
+            },
+          },
+          color: {
+            'x-component': 'ColorInput',
+            required: true,
+            'x-decorator': 'FormItem',
+            'x-component-props': {
+              label: 'Color',
+              placeholder: `enterSite`,
             },
           },
         },
@@ -100,6 +105,9 @@ const Home = () => {
     },
   };
   const form = createForm();
+  const onSubmit = (data: unknown) => {
+    console.log(data);
+  };
   return (
     <FormProvider form={form}>
       <h1 className="text-3xl font-bold underline">Hello world!</h1>
@@ -113,8 +121,12 @@ const Home = () => {
               e.stopPropagation();
               form
                 .submit()
-                .then(() => {})
-                .catch(() => {});
+                .then((data) => {
+                  onSubmit(data);
+                })
+                .catch((error) => {
+                  console.log(error);
+                });
             }}
           >
             Submit

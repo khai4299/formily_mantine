@@ -1,47 +1,34 @@
-import React, { FC, ReactNode, useState } from 'react';
-import {
-  IFieldProps,
-  onFormSubmitValidateFailed,
-  onFormSubmitValidateSuccess,
-  useEffectForm,
-} from '@formily/core';
+import React, { useState } from 'react';
 import {
   Field,
-  useField,
-  useForm,
-  useFormEffects,
-  useParentForm,
-} from '@formily/react';
+  GeneralField,
+  onFieldValidateFailed,
+  onFieldValidateSuccess,
+} from '@formily/core';
+import { useField, useFormEffects } from '@formily/react';
 
-interface Props extends IFieldProps {
-  children: any;
+interface Props {
+  children: React.ReactElement;
 }
 
-const FormItem: FC<Props> = (props) => {
+const FormItem = ({ children }: Props) => {
   const [errorForm, setErrorForm] = useState(false);
-  const field = useField();
+  const field = useField<Field>();
   useFormEffects(() => {
-    onFormSubmitValidateSuccess((form) => {
+    onFieldValidateSuccess(field.props.name, () => {
       setErrorForm(false);
     });
-    onFormSubmitValidateFailed((form) => {
-      const error = form.errors.find(
-        (error) => error.path === field.props.name
-      );
-      if (error) {
-        setErrorForm(true);
-      } else {
-        setErrorForm(false);
-      }
+    onFieldValidateFailed(field.props.name, () => {
+      setErrorForm(true);
     });
   });
   return (
-    <div>
-      <div>
-        {props.children &&
-          React.cloneElement(props.children, { error: errorForm })}
-      </div>
-    </div>
+    <>
+      {React.cloneElement(children, {
+        error: errorForm,
+        required: field.required,
+      })}
+    </>
   );
 };
 
