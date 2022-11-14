@@ -15,8 +15,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@formily-mantine/cdk": ["libs/cdk/src/index.ts"],
       "@formily-mantine/common": ["libs/common/src/index.ts"],
       "@formily-mantine/components": ["libs/components/src/index.ts"],
+      "@formily-mantine/core": ["libs/core/src/index.ts"],
       "@formily-mantine/modules/home": ["libs/modules/home/src/index.ts"]
     }
   },

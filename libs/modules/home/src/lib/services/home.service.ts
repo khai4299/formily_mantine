@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { BaseUser } from '@formily-mantine/common';
+import { BaseUser } from '@formily-mantine/cdk';
 
 const BASE_URL = 'https://qa-nexthcm-api.banvien.com.vn/accountapp/v1.0';
 

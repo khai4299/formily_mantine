@@ -4,6 +4,7 @@ import React from 'react';
 import {
   ColorInput,
   ComboBox,
+  UploadFile,
   FormItem,
   Input,
   NumberInput,
@@ -13,6 +14,7 @@ import {
 } from '@formily-mantine/components';
 import { searchUsers } from '../../services';
 import { FiClock, FiSearch } from 'react-icons/fi';
+import { IMAGE_MIME_TYPE } from '@mantine/dropzone';
 
 const Home = () => {
   const SchemaField = createSchemaField({
@@ -25,6 +27,7 @@ const Home = () => {
       TimeInput,
       PasswordInput,
       ColorInput,
+      UploadFile,
     },
   });
   const schema = {
@@ -98,6 +101,16 @@ const Home = () => {
             'x-component-props': {
               label: 'Color',
               placeholder: `enterSite`,
+            },
+          },
+          file: {
+            'x-component': 'UploadFile',
+            'x-decorator': 'FormItem',
+            'x-component-props': {
+              label: 'File',
+              clearable: true,
+              accept: IMAGE_MIME_TYPE,
+              placeholder: `enterFile`,
             },
           },
         },
