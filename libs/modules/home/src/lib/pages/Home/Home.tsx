@@ -11,6 +11,9 @@ import {
   PasswordInput,
   Select,
   TimeInput,
+  SharingFile,
+  RepeatItem,
+  Item,
 } from '@formily-mantine/components';
 import { searchUsers } from '../../services';
 import { FiClock, FiSearch } from 'react-icons/fi';
@@ -28,6 +31,9 @@ const Home = () => {
       PasswordInput,
       ColorInput,
       UploadFile,
+      SharingFile,
+      RepeatItem,
+      Item,
     },
   });
   const schema = {
@@ -46,7 +52,6 @@ const Home = () => {
             'x-component-props': {
               label: 'Select box',
               placeholder: `enterSite`,
-              required: true,
               labelProp: 'name',
               matcherBy: 'id',
               serverRequest: (search: string) => searchUsers({ search }),
@@ -55,7 +60,6 @@ const Home = () => {
           name: {
             'x-component': 'Input',
             'x-decorator': 'FormItem',
-            required: true,
             'x-component-props': {
               label: 'Select box',
               placeholder: `enterSite`,
@@ -64,7 +68,6 @@ const Home = () => {
           },
           age: {
             'x-component': 'NumberInput',
-            required: true,
             'x-decorator': 'FormItem',
             'x-component-props': {
               label: 'Age',
@@ -75,7 +78,6 @@ const Home = () => {
           },
           birthDay: {
             'x-component': 'TimeInput',
-            required: true,
             'x-decorator': 'FormItem',
             'x-component-props': {
               label: 'Birthday',
@@ -86,7 +88,6 @@ const Home = () => {
           },
           password: {
             'x-component': 'PasswordInput',
-            required: true,
             'x-decorator': 'FormItem',
             'x-component-props': {
               label: 'Password',
@@ -96,7 +97,6 @@ const Home = () => {
           },
           color: {
             'x-component': 'ColorInput',
-            required: true,
             'x-decorator': 'FormItem',
             'x-component-props': {
               label: 'Color',
@@ -111,6 +111,26 @@ const Home = () => {
               clearable: true,
               accept: IMAGE_MIME_TYPE,
               placeholder: `enterFile`,
+            },
+          },
+          files: {
+            type: 'array',
+            'x-component': 'RepeatItem',
+            'x-decorator': 'FormItem',
+            'x-component-props': {
+              label: 'Files',
+            },
+            items: {
+              properties: {
+                file: {
+                  'x-decorator': 'FormItem',
+                  'x-component': 'SharingFile',
+                },
+                file2: {
+                  'x-decorator': 'FormItem',
+                  'x-component': 'SharingFile',
+                },
+              },
             },
           },
         },

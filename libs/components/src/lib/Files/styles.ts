@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 
 export const StyledUpload = styled.div`
+  width: 100%;
+
   .mantine-FileInput-input {
     display: flex;
     align-items: center;

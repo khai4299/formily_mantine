@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Field,
-  GeneralField,
   onFieldValidateFailed,
   onFieldValidateSuccess,
 } from '@formily/core';

@@ -2,6 +2,9 @@ const { createGlobPatternsForDependencies } = require('@nrwl/react/tailwind');
 const { join } = require('path');
 
 module.exports = {
+  corePlugins: {
+    preflight: false,
+  },
   content: [
     join(
       __dirname,
