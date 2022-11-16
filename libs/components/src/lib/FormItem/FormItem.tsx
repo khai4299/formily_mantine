@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import {
-  Field,
+  Field as FieldType,
   onFieldValidateFailed,
   onFieldValidateSuccess,
 } from '@formily/core';
-import { useField, useFormEffects } from '@formily/react';
+import { Field, JSXComponent, useField, useFormEffects } from '@formily/react';
 
 interface Props {
   children: React.ReactElement;
@@ -12,7 +12,7 @@ interface Props {
 
 const FormItem = ({ children }: Props) => {
   const [errorForm, setErrorForm] = useState(false);
-  const field = useField<Field>();
+  const field = useField<FieldType>();
   useFormEffects(() => {
     onFieldValidateSuccess(field.props.name, () => {
       setErrorForm(false);
@@ -21,14 +21,7 @@ const FormItem = ({ children }: Props) => {
       setErrorForm(true);
     });
   });
-  return (
-    <>
-      {React.cloneElement(children, {
-        error: errorForm,
-        required: field.required,
-      })}
-    </>
-  );
+  return <>{children}</>;
 };
 
 export default FormItem;

@@ -39,98 +39,90 @@ const Home = () => {
   const schema = {
     type: 'object',
     properties: {
-      layout: {
-        type: 'void',
+      // reportTo: {
+      //   'x-component': 'ComboBox',
+      //   'x-component-props': {
+      //     label: 'Select box',
+      //     placeholder: `enterSite`,
+      //     labelProp: 'name',
+      //     matcherBy: 'id',
+      //     serverRequest: (search: string) => searchUsers({ search }),
+      //   },
+      // },
+      // name: {
+      //   type: 'string',
+      //
+      //   'x-component': 'Input',
+      //   'x-decorator': 'FormItem',
+      //   'x-component-props': {
+      //     label: 'Select box',
+      //     placeholder: `enterSite`,
+      //     icon: <FiSearch />,
+      //   },
+      // },
+      // age: {
+      //   type: 'string',
+      //   'x-component': 'NumberInput',
+      //   'x-decorator': 'FormItem',
+      //   'x-component-props': {
+      //     label: 'Age',
+      //     placeholder: `enterSite`,
+      //     precision: 2,
+      //     icon: <FiSearch />,
+      //   },
+      // },
+      // birthDay: {
+      //   'x-component': 'TimeInput',
+      //   'x-decorator': 'FormItem',
+      //   'x-component-props': {
+      //     label: 'Birthday',
+      //     clearable: true,
+      //     placeholder: `enterSite`,
+      //     icon: <FiClock />,
+      //   },
+      // },
+      // password: {
+      //   'x-component': 'PasswordInput',
+      //   'x-decorator': 'FormItem',
+      //   'x-component-props': {
+      //     label: 'Password',
+      //     placeholder: `enterSite`,
+      //     icon: <FiClock />,
+      //   },
+      // },
+      // color: {
+      //   'x-component': 'ColorInput',
+      //   'x-decorator': 'FormItem',
+      //   'x-component-props': {
+      //     label: 'Color',
+      //     placeholder: `enterSite`,
+      //   },
+      // },
+      // file: {
+      //   'x-component': 'UploadFile',
+      //   'x-decorator': 'FormItem',
+      //   'x-component-props': {
+      //     label: 'File',
+      //     clearable: true,
+      //     accept: IMAGE_MIME_TYPE,
+      //     placeholder: `enterFile`,
+      //   },
+      // },
+      files: {
+        type: 'array',
+        'x-component': 'RepeatItem',
         'x-component-props': {
-          labelCol: 6,
-          wrapperCol: 10,
-          layout: 'vertical',
+          label: 'Files',
         },
-        properties: {
-          reportTo: {
-            'x-component': 'ComboBox',
-            'x-component-props': {
-              label: 'Select box',
-              placeholder: `enterSite`,
-              labelProp: 'name',
-              matcherBy: 'id',
-              serverRequest: (search: string) => searchUsers({ search }),
-            },
-          },
-          name: {
-            'x-component': 'Input',
-            'x-decorator': 'FormItem',
-            'x-component-props': {
-              label: 'Select box',
-              placeholder: `enterSite`,
-              icon: <FiSearch />,
-            },
-          },
-          age: {
-            'x-component': 'NumberInput',
-            'x-decorator': 'FormItem',
-            'x-component-props': {
-              label: 'Age',
-              placeholder: `enterSite`,
-              precision: 2,
-              icon: <FiSearch />,
-            },
-          },
-          birthDay: {
-            'x-component': 'TimeInput',
-            'x-decorator': 'FormItem',
-            'x-component-props': {
-              label: 'Birthday',
-              clearable: true,
-              placeholder: `enterSite`,
-              icon: <FiClock />,
-            },
-          },
-          password: {
-            'x-component': 'PasswordInput',
-            'x-decorator': 'FormItem',
-            'x-component-props': {
-              label: 'Password',
-              placeholder: `enterSite`,
-              icon: <FiClock />,
-            },
-          },
-          color: {
-            'x-component': 'ColorInput',
-            'x-decorator': 'FormItem',
-            'x-component-props': {
-              label: 'Color',
-              placeholder: `enterSite`,
-            },
-          },
-          file: {
-            'x-component': 'UploadFile',
-            'x-decorator': 'FormItem',
-            'x-component-props': {
-              label: 'File',
-              clearable: true,
-              accept: IMAGE_MIME_TYPE,
-              placeholder: `enterFile`,
-            },
-          },
-          files: {
-            type: 'array',
-            'x-component': 'RepeatItem',
-            'x-decorator': 'FormItem',
-            'x-component-props': {
-              label: 'Files',
-            },
-            items: {
-              properties: {
-                file: {
-                  'x-decorator': 'FormItem',
-                  'x-component': 'SharingFile',
-                },
-                file2: {
-                  'x-decorator': 'FormItem',
-                  'x-component': 'SharingFile',
-                },
-              },
+        items: {
+          type: 'object',
+          'x-component': 'Item',
+
+          properties: {
+            file: {
+              type: 'string',
+              'x-decorator': 'FormItem',
+              'x-component': 'Input',
             },
           },
         },

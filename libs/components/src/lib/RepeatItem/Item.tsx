@@ -1,8 +1,11 @@
 import React from 'react';
 
 const Item = (props: any) => {
-  console.log(props);
-  return <div {...props}>{props.children}</div>;
+  return (
+    <div {...props} onChange={() => {}}>
+      {props.children}
+    </div>
+  );
 };
 
 export default Item;

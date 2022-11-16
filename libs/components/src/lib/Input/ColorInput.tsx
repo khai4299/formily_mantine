@@ -3,6 +3,8 @@ import {
   ColorInput as ColorInputMantine,
   ColorInputProps,
 } from '@mantine/core';
+import { useField } from '@formily/react';
+import { Field } from '@formily/core';
 
 const swatches = [
   '#25262b',
@@ -21,6 +23,8 @@ const swatches = [
   '#fd7e14',
 ];
 const ColorInput: FC<ColorInputProps> = (props) => {
+  const field = useField<Field>();
+  console.log(field.props.basePath);
   return (
     <ColorInputMantine
       {...props}
