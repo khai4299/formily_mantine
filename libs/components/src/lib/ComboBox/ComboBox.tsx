@@ -1,18 +1,15 @@
-import React, { FC, forwardRef, useEffect, useRef, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import {
   Autocomplete,
   AutocompleteItem,
-  BaseSelectProps,
-  Group,
-  Loader,
-  SelectItemProps,
-  Text,
+  AutocompleteProps,
 } from '@mantine/core';
-import { debounce } from 'lodash';
 import { SelectSharedProps } from '@mantine/core/lib/Select/Select';
-import { useForm } from '@formily/react';
+import { useField } from '@formily/react';
 import { useMutation } from 'react-query';
-import { BaseObject } from '@formily-mantine/common';
+import { BaseFormItemProps, BaseObject } from '@formily-mantine/common';
+import { Field } from '@formily/core';
+import { useDebounce } from '@formily-mantine/cdk';
 
 interface ItemProps extends AutocompleteItem, BaseObject {}
 
@@ -27,96 +24,50 @@ interface ComboBoxProps {
 }
 
 const ComboBox: FC<
-  ComboBoxProps &
-    BaseSelectProps &
-    SelectSharedProps<AutocompleteItem, AutocompleteItem>
+  BaseFormItemProps &
+    AutocompleteProps &
+    SelectSharedProps<AutocompleteItem, AutocompleteItem> &
+    ComboBoxProps
 > = (props) => {
+  const field = useField<Field>();
   const [options, setOptions] = useState<AutocompleteItem[]>([]);
-
   const [searchValue, setSearchValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const searchQuery = useDebounce(searchValue, 500);
 
-  const { mutate } = useMutation(props.serverRequest);
-  const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
-    ({ label, ...propsItem }: SelectItemProps, ref) => (
-      <div ref={ref} {...propsItem}>
-        <Group noWrap>
-          <div>
-            <Text size="sm">{label}</Text>
-          </div>
-        </Group>
-      </div>
-    )
-  );
-  const onSearch = (search: string) => {
-    if (search) {
-      console.log(123);
-      mutate(search, {
-        onSuccess: (data) => {
-          const optionsRes = data.map((item) => {
-            return {
-              ...item,
-              key: item.id,
-              value: item.name,
-              label: item[props.labelProp],
-            };
-          });
-          setIsLoading(false);
-          setOptions(optionsRes);
-        },
-        onError: () => {
-          setIsLoading(false);
-          setOptions([]);
-        },
-      });
-    }
-  };
-  const debounceDropDown = useRef(
-    debounce((nextValue: string) => onSearch(nextValue), 1000)
-  ).current;
   useEffect(() => {
-    if (props.options) {
-      setOptions(
-        props.options.map((item) => {
-          return {
-            ...item,
-            key: item.id,
-            value: item.name,
-            label: item[props.labelProp],
-          };
-        })
-      );
-    }
-  }, []);
-  const { values } = useForm();
+    mutate(searchValue);
+  }, [searchQuery]);
+
+  const { mutate } = useMutation(props.serverRequest, {
+    onSuccess: (response) => {
+      const optionsRes = response.map((item) => {
+        return {
+          ...item,
+          key: item.id,
+          value: item.name,
+          label: item[props.labelProp],
+        };
+      });
+      setOptions(optionsRes);
+    },
+    onError: () => {
+      setOptions([]);
+    },
+  });
+  const onItemSubmit = (value: AutocompleteItem) => {
+    props.onChange?.(value);
+  };
   return (
-    <>
-      <span
-        className={`${props.labelClassName} ${
-          props.required ? 'required' : ''
-        }`}
-      >
-        {props.label}
-      </span>
-      <Autocomplete
-        itemComponent={SelectItem}
-        data={!isLoading ? options : []}
-        onChange={(value: string) => {
-          setIsLoading(true);
-          setSearchValue(value);
-          debounceDropDown(value);
-        }}
-        onItemSubmit={(matcher) => {
-          props.onChange?.(matcher);
-        }}
-        placeholder={props.placeholder}
-        value={searchValue}
-        limit={options?.length}
-        nothingFound={
-          isLoading ? <Loader style={{ margin: 'auto' }} /> : 'No options'
-        }
-      />
-    </>
+    <Autocomplete
+      {...props}
+      required={field.required}
+      data={options || []}
+      onChange={setSearchValue}
+      onItemSubmit={onItemSubmit}
+      value={searchValue}
+      limit={options?.length}
+      error={props.error && props.feedbackText}
+    />
   );
 };
 export default React.memo(ComboBox);

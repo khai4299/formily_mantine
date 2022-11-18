@@ -4,24 +4,34 @@ import {
   onFieldValidateFailed,
   onFieldValidateSuccess,
 } from '@formily/core';
-import { Field, JSXComponent, useField, useFormEffects } from '@formily/react';
+import { useField, useFormEffects } from '@formily/react';
+import { takeMessageForm } from '@formily-mantine/cdk';
 
 interface Props {
   children: React.ReactElement;
+  feedbackText?: string;
 }
 
-const FormItem = ({ children }: Props) => {
-  const [errorForm, setErrorForm] = useState(false);
+const FormItem = (props: Props) => {
+  const [error, setError] = useState<boolean>(false);
   const field = useField<FieldType>();
   useFormEffects(() => {
-    onFieldValidateSuccess(field.props.name, () => {
-      setErrorForm(false);
+    onFieldValidateFailed(field.address, () => {
+      setError(true);
     });
-    onFieldValidateFailed(field.props.name, () => {
-      setErrorForm(true);
+    onFieldValidateSuccess(field.address, () => {
+      setError(false);
     });
   });
-  return <>{children}</>;
+
+  return (
+    <>
+      {React.cloneElement(props.children, {
+        feedbackText: takeMessageForm(field, props.feedbackText),
+        error: error,
+      })}
+    </>
+  );
 };
 
 export default FormItem;

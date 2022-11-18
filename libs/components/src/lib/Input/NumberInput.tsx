@@ -3,17 +3,24 @@ import {
   NumberInput as NumberInputMantine,
   NumberInputProps,
 } from '@mantine/core';
+import { useField } from '@formily/react';
+import { Field } from '@formily/core';
+import { BaseFormItemProps } from '@formily-mantine/cdk';
 
-const NumberInput: FC<NumberInputProps> = (props) => {
+const NumberInput: FC<NumberInputProps & BaseFormItemProps> = (props) => {
+  const field = useField<Field>();
+
   return (
     <NumberInputMantine
       {...props}
+      required={field.required}
+      readOnly={!!props.readOnly}
       parser={(value) =>
         value?.replace(/[^0-9.-]/g, '').replace(/(\..*?)\..*/g, '$1')
       }
       decimalSeparator=","
       hideControls={true}
-      error={props.error && 'The field not should be blank'}
+      error={props.error && props.feedbackText}
     />
   );
 };

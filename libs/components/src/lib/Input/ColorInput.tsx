@@ -5,6 +5,7 @@ import {
 } from '@mantine/core';
 import { useField } from '@formily/react';
 import { Field } from '@formily/core';
+import { BaseFormItemProps } from '@formily-mantine/cdk';
 
 const swatches = [
   '#25262b',
@@ -22,14 +23,15 @@ const swatches = [
   '#fab005',
   '#fd7e14',
 ];
-const ColorInput: FC<ColorInputProps> = (props) => {
+const ColorInput: FC<ColorInputProps & BaseFormItemProps> = (props) => {
   const field = useField<Field>();
-  console.log(field.props.basePath);
   return (
     <ColorInputMantine
       {...props}
       swatches={swatches}
-      error={props.error && 'The field not should be blank'}
+      required={field.required}
+      readOnly={!!props.readOnly}
+      error={props.error && props.feedbackText}
     />
   );
 };

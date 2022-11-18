@@ -13,11 +13,12 @@ import {
   TimeInput,
   SharingFile,
   RepeatItem,
-  Item,
+  MultiSelect,
 } from '@formily-mantine/components';
-import { searchUsers } from '../../services';
+import { getRoles, searchUsers } from '../../services';
 import { FiClock, FiSearch } from 'react-icons/fi';
 import { IMAGE_MIME_TYPE } from '@mantine/dropzone';
+import { useQuery } from 'react-query';
 
 const Home = () => {
   const SchemaField = createSchemaField({
@@ -33,33 +34,38 @@ const Home = () => {
       UploadFile,
       SharingFile,
       RepeatItem,
-      Item,
+      MultiSelect,
     },
   });
+  const { data } = useQuery('roles', getRoles);
   const schema = {
     type: 'object',
     properties: {
-      // reportTo: {
-      //   'x-component': 'ComboBox',
-      //   'x-component-props': {
-      //     label: 'Select box',
-      //     placeholder: `enterSite`,
-      //     labelProp: 'name',
-      //     matcherBy: 'id',
-      //     serverRequest: (search: string) => searchUsers({ search }),
-      //   },
-      // },
-      // name: {
-      //   type: 'string',
-      //
-      //   'x-component': 'Input',
-      //   'x-decorator': 'FormItem',
-      //   'x-component-props': {
-      //     label: 'Select box',
-      //     placeholder: `enterSite`,
-      //     icon: <FiSearch />,
-      //   },
-      // },
+      reportTo: {
+        required: true,
+        'x-decorator': 'FormItem',
+        'x-component': 'MultiSelect',
+        'x-component-props': {
+          label: 'Select box',
+          placeholder: `enterSite`,
+          labelProp: 'name',
+          matcherBy: 'id',
+          options: data?.data.items,
+          serverRequest: (search: string) => searchUsers({ search }),
+        },
+      },
+      name: {
+        type: 'string',
+        required: true,
+        'x-component': 'Input',
+        'x-decorator': 'FormItem',
+        'x-component-props': {
+          label: 'Select box',
+          feedbackText: 'The field should be not blank',
+          placeholder: `enterSite`,
+          icon: <FiSearch />,
+        },
+      },
       // age: {
       //   type: 'string',
       //   'x-component': 'NumberInput',
@@ -108,25 +114,30 @@ const Home = () => {
       //     placeholder: `enterFile`,
       //   },
       // },
-      files: {
-        type: 'array',
-        'x-component': 'RepeatItem',
-        'x-component-props': {
-          label: 'Files',
-        },
-        items: {
-          type: 'object',
-          'x-component': 'Item',
-
-          properties: {
-            file: {
-              type: 'string',
-              'x-decorator': 'FormItem',
-              'x-component': 'Input',
-            },
-          },
-        },
-      },
+      // attachments: {
+      //   type: 'array',
+      //   'x-component': 'RepeatItem',
+      //   'x-component-props': {
+      //     label: 'Attachments',
+      //     fieldGroupClassName: 'grid grid-cols-3 gap-4',
+      //   },
+      //   // required: true,
+      //   items: {
+      //     type: 'void',
+      //     properties: {
+      //       test: {
+      //         type: 'object',
+      //         properties: {
+      //           file: {
+      //             required: true,
+      //             'x-decorator': 'FormItem',
+      //             'x-component': 'SharingFile',
+      //           },
+      //         },
+      //       },
+      //     },
+      //   },
+      // },
     },
   };
   const form = createForm();

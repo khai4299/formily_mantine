@@ -7,8 +7,6 @@ import { StyledUpload } from './styles';
 import { useMutation } from 'react-query';
 import { uploadFile } from '@formily-mantine/cdk';
 import { FileRejection } from 'react-dropzone';
-import { Field, useField, useForm } from '@formily/react';
-import { Field as FieldType } from '@formily/core';
 
 interface Props {
   label: string;
@@ -16,16 +14,19 @@ interface Props {
   onChange: any;
   value: string;
   error?: boolean;
+  feedbackText: string;
 }
 
 const SharingFile: FC<DropzoneProps & Props> = (props) => {
   const [fileReject, setFileReject] = useState<FileWithPath | null>(null);
   const [fileDrop, setFileDrop] = useState<FileWithPath | null>(null);
-  const form = useForm();
-  const field = useField<FieldType>();
   const { mutate: upload, isLoading } = useMutation(uploadFile, {
     onSuccess: (response) => {
       props.onChange(response);
+    },
+    onError: () => {
+      props.onChange(null);
+      setFileReject(null);
     },
   });
   const onDrop = (fileDrops: FileWithPath[]) => {
@@ -40,27 +41,28 @@ const SharingFile: FC<DropzoneProps & Props> = (props) => {
     setFileDrop(null);
     props.onChange(null);
   };
-  const onRemove = (file: File) => {
+  const onChange = (file: File) => {
     if (!file) {
       setFileReject(null);
       setFileDrop(null);
       props.onChange(null);
     } else {
       setFileDrop(file);
+      setFileReject(null);
       upload({ subPath: 'employee', file: file });
     }
   };
   return (
-    <Field name="files.0">
-      <StyledUpload>
-        <label className="inline-block text-sm font-medium break-all cursor-default">
-          {props.label}
-          {props.required && <span className="text-red-500"> *</span>}
-        </label>
-
-        {!fileReject && !fileDrop && (
+    <StyledUpload>
+      <label className="inline-block text-sm font-medium break-all cursor-default">
+        {props.label}
+        {props.required && <span className="text-red-500"> *</span>}
+      </label>
+      <div>
+        {!props.value && !fileReject && (
           <Dropzone
-            className="border border-dashed border-blue-600 mb-5px p-2"
+            loading={isLoading}
+            className="border border-dashed border-blue-600 mb-5px p-0 "
             accept={props.accept}
             onDrop={onDrop}
             onReject={onReject}
@@ -71,12 +73,12 @@ const SharingFile: FC<DropzoneProps & Props> = (props) => {
               </Dropzone.Idle>
               <label className="inline-flex">
                 <Text className="text-blue-600"> Choose a file&nbsp;</Text>
-                or drop&nbsp;it&nbsp;here
+                or drop it here
               </label>
             </Group>
           </Dropzone>
         )}
-        {(fileDrop || fileReject) && (
+        {(props.value || fileReject) && (
           <FileInput
             value={fileDrop ? fileDrop : fileReject}
             icon={
@@ -90,14 +92,14 @@ const SharingFile: FC<DropzoneProps & Props> = (props) => {
             }
             error={fileReject && 'Wrong file type'}
             clearable={true}
-            onChange={onRemove}
+            onChange={onChange}
           />
         )}
-        {field.selfErrors && (
-          <div className="text-xs text-red-500">The field is not blank</div>
-        )}
-      </StyledUpload>
-    </Field>
+      </div>
+      {props.error && (
+        <div className="text-xs text-red-500">{props.feedbackText}</div>
+      )}
+    </StyledUpload>
   );
 };
 

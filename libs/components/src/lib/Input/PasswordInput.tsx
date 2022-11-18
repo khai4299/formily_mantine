@@ -4,12 +4,19 @@ import {
   PasswordInputProps,
 } from '@mantine/core';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { useField } from '@formily/react';
+import { Field } from '@formily/core';
+import { BaseFormItemProps } from '@formily-mantine/cdk';
 
-const PasswordInput: FC<PasswordInputProps> = (props) => {
+const PasswordInput: FC<PasswordInputProps & BaseFormItemProps> = (props) => {
+  const field = useField<Field>();
+
   return (
     <PasswordInputMantine
       {...props}
-      error={props.error && 'The field not should be blank'}
+      required={field.required}
+      readOnly={!!props.readOnly}
+      error={props.error && props.feedbackText}
       visibilityToggleIcon={({ reveal, size }) =>
         reveal ? <FiEye size={size} /> : <FiEyeOff size={size} />
       }

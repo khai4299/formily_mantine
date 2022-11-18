@@ -9,6 +9,7 @@ import {
 } from '@mantine/core';
 import { SelectSharedProps } from '@mantine/core/lib/Select/Select';
 import { useField, useForm } from '@formily/react';
+import { BaseFormItemProps } from '@formily-mantine/cdk';
 
 interface ItemsProps extends SelectItem {
   id: string;
@@ -24,7 +25,10 @@ interface SelectProps {
 }
 
 const Select: FC<
-  SelectProps & SelectPropsMantine & SelectSharedProps<SelectItem, SelectItem>
+  BaseFormItemProps &
+    SelectProps &
+    SelectPropsMantine &
+    SelectSharedProps<SelectItem, SelectItem>
 > = (props) => {
   const [options, setOptions] = useState<SelectItem[]>();
   const { getInitialValuesIn, getValuesIn } = useForm();
