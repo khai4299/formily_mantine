@@ -7,11 +7,13 @@ import {
 import { SelectSharedProps } from '@mantine/core/lib/Select/Select';
 import { useField } from '@formily/react';
 import { useMutation } from 'react-query';
-import { BaseFormItemProps, BaseObject } from '@formily-mantine/common';
+import { BaseFormItemProps } from '@formily-mantine/common';
 import { Field } from '@formily/core';
 import { useDebounce } from '@formily-mantine/cdk';
 
-interface ItemProps extends AutocompleteItem, BaseObject {}
+interface ItemProps extends AutocompleteItem {
+  id: string;
+}
 
 interface ComboBoxProps {
   options: ItemProps[];
@@ -43,7 +45,6 @@ const ComboBox: FC<
       const optionsRes = response.map((item) => {
         return {
           ...item,
-          key: item.id,
           value: item.name,
           label: item[props.labelProp],
         };

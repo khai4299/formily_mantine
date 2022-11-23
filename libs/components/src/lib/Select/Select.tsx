@@ -1,85 +1,59 @@
-import React, { FC, forwardRef, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import {
-  Group,
   Select as SelectMantine,
   SelectItem,
-  SelectItemProps,
-  SelectProps as SelectPropsMantine,
-  Text,
+  SelectProps,
 } from '@mantine/core';
-import { SelectSharedProps } from '@mantine/core/lib/Select/Select';
-import { useField, useForm } from '@formily/react';
+import { useField } from '@formily/react';
 import { BaseFormItemProps } from '@formily-mantine/cdk';
+import { Field } from '@formily/core';
 
-interface ItemsProps extends SelectItem {
+interface SelectItemProps extends SelectItem {
   id: string;
 }
 
-interface SelectProps {
-  options: ItemsProps[];
-  labelClassName?: string;
-  placeholder: string;
-  required?: boolean;
+interface Props {
+  serverRequest: (search: string) => Promise<any[]>;
   labelProp: string;
   matcherBy: string;
+  onChange: (value: SelectItemProps) => void;
+  options: SelectItemProps[];
 }
 
-const Select: FC<
-  BaseFormItemProps &
-    SelectProps &
-    SelectPropsMantine &
-    SelectSharedProps<SelectItem, SelectItem>
-> = (props) => {
-  const [options, setOptions] = useState<SelectItem[]>();
-  const { getInitialValuesIn, getValuesIn } = useForm();
-  const { data, props: propsField } = useField();
+const Select: FC<Props & BaseFormItemProps & SelectProps> = (props) => {
+  const [options, setOptions] = useState<SelectItemProps[]>([]);
+  const field = useField<Field>();
   useEffect(() => {
-    setOptions(
-      props.options?.map((item) => {
-        return {
-          ...item,
-          key: item.id,
-          value: item.id,
-          label: item[props.labelProp],
-        };
-      })
-    );
-  }, [props]);
-  const SelectItem = forwardRef<HTMLDivElement, SelectItemProps>(
-    ({ label, ...propsItem }: SelectItemProps, ref) => (
-      <div ref={ref} {...propsItem}>
-        <Group noWrap>
-          <div>
-            <Text size="sm">{label}</Text>
-          </div>
-        </Group>
-      </div>
-    )
-  );
+    if (props.options) {
+      setOptions(
+        props.options.map((option) => {
+          return {
+            ...option,
+            value: option.id,
+            label: option[props.labelProp],
+          };
+        })
+      );
+    }
+  }, [props.options]);
   return (
-    <>
-      <span
-        className={`${props.labelClassName} ${
-          props.required ? 'required' : ''
-        }`}
-      >
-        {props.label}
-      </span>
-      <SelectMantine
-        itemComponent={SelectItem}
-        data={options || []}
-        defaultValue={getValuesIn(propsField.name)?.id}
-        onChange={(matcher) => {
-          const item = props.options.find(
-            (item) => item[props.matcherBy] === matcher
-          );
-          if (item) {
-            props.onChange?.(item);
-          }
-        }}
-        placeholder={props.placeholder}
-      />
-    </>
+    <SelectMantine
+      {...props}
+      value={field.value && field.value.id}
+      required={field.required}
+      data={options || []}
+      nothingFound={'Nothing found'}
+      limit={options.length}
+      onChange={(matcher) => {
+        const item = props.options.find(
+          (item) => item[props.matcherBy] === matcher
+        );
+        if (item) {
+          props.onChange?.(item);
+        }
+      }}
+      error={props.error && props.feedbackText}
+    />
   );
 };
 

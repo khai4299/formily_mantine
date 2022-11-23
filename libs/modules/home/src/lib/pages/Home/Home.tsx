@@ -37,7 +37,7 @@ const Home = () => {
       MultiSelect,
     },
   });
-  const { data } = useQuery('roles', getRoles);
+  // const { data } = useQuery('roles', searchUsers);
   const schema = {
     type: 'object',
     properties: {
@@ -50,20 +50,23 @@ const Home = () => {
           placeholder: `enterSite`,
           labelProp: 'name',
           matcherBy: 'id',
-          options: data?.data.items,
+          searchable: true,
           serverRequest: (search: string) => searchUsers({ search }),
         },
       },
       name: {
         type: 'string',
         required: true,
-        'x-component': 'Input',
+        'x-component': 'ComboBox',
         'x-decorator': 'FormItem',
         'x-component-props': {
           label: 'Select box',
           feedbackText: 'The field should be not blank',
           placeholder: `enterSite`,
           icon: <FiSearch />,
+          labelProp: 'name',
+          matcherBy: 'id',
+          serverRequest: (search: string) => searchUsers({ search }),
         },
       },
       // age: {
