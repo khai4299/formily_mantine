@@ -5,30 +5,30 @@ import { FaCloudUploadAlt, FaRegCheckCircle } from 'react-icons/fa';
 import { BiErrorCircle } from 'react-icons/bi';
 import { StyledUpload } from './styles';
 import { useMutation } from 'react-query';
-import { uploadFile } from '@formily-mantine/cdk';
 import { FileRejection } from 'react-dropzone';
 
 interface Props {
   label: string;
   required?: boolean;
-  onChange: (value: string | null) => void;
+  onChange: (subPath: Record<string, string> | null) => void;
   value: string;
   error?: boolean;
+  serverRequest: (file: File) => Promise<any>;
 }
 
 const UploadFile: FC<DropzoneProps & Props> = (props) => {
   const [fileReject, setFileReject] = useState<FileWithPath | null>(null);
   const [fileDrop, setFileDrop] = useState<FileWithPath | null>(null);
-  const { mutate: upload, isLoading } = useMutation(uploadFile, {
+  const { mutate: upload, isLoading } = useMutation(props.serverRequest, {
     onSuccess: (response) => {
-      props.onChange(response);
+      props.onChange({ url: response });
     },
   });
   const onDrop = (fileDrops: FileWithPath[]) => {
     const file = fileDrops[0];
     setFileDrop(file);
     setFileReject(null);
-    upload({ subPath: 'employee', file: file });
+    upload(file);
   };
   const onReject = (fileRejects: FileRejection[]) => {
     const file = fileRejects[0];
@@ -36,11 +36,15 @@ const UploadFile: FC<DropzoneProps & Props> = (props) => {
     setFileDrop(null);
     props.onChange(null);
   };
-  const onRemove = (fileRemove: File) => {
-    if (!fileRemove) {
+  const onRemove = (file: File) => {
+    if (!file) {
       setFileReject(null);
       setFileDrop(null);
       props.onChange(null);
+    } else {
+      setFileDrop(file);
+      setFileReject(null);
+      upload(file);
     }
   };
   return (

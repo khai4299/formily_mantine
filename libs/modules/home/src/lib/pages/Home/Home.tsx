@@ -2,28 +2,28 @@ import { createSchemaField, FormProvider } from '@formily/react';
 import { createForm } from '@formily/core';
 import React from 'react';
 import {
+  Checkbox,
   ColorInput,
   ComboBox,
-  UploadFile,
-  FormItem,
+  DatePicker,
+  DateRangePicker,
   Input,
+  MultiSelect,
   NumberInput,
   PasswordInput,
-  Select,
-  TimeInput,
-  SharingFile,
   RepeatItem,
-  MultiSelect,
+  Select,
+  SharingFile,
+  Switch,
+  TimeInput,
+  UploadFile,
 } from '@formily-mantine/components';
-import { getRoles, searchUsers } from '../../services';
-import { FiClock, FiSearch } from 'react-icons/fi';
 import { IMAGE_MIME_TYPE } from '@mantine/dropzone';
-import { useQuery } from 'react-query';
+import { uploadFile } from '@formily-mantine/cdk';
 
 const Home = () => {
   const SchemaField = createSchemaField({
     components: {
-      FormItem,
       Select,
       ComboBox,
       Input,
@@ -35,107 +35,65 @@ const Home = () => {
       SharingFile,
       RepeatItem,
       MultiSelect,
+      DatePicker,
+      DateRangePicker,
+      Checkbox,
+      Switch,
     },
   });
   // const { data } = useQuery('roles', searchUsers);
   const schema = {
     type: 'object',
     properties: {
-      reportTo: {
+      date: {
         required: true,
-        'x-decorator': 'FormItem',
-        'x-component': 'MultiSelect',
-        'x-component-props': {
-          label: 'Select box',
-          placeholder: `enterSite`,
-          labelProp: 'name',
-          matcherBy: 'id',
-          searchable: true,
-          serverRequest: (search: string) => searchUsers({ search }),
-        },
-      },
-      name: {
-        type: 'string',
-        required: true,
-        'x-component': 'ComboBox',
-        'x-decorator': 'FormItem',
+        'x-component': 'DatePicker',
         'x-component-props': {
           label: 'Select box',
           feedbackText: 'The field should be not blank',
           placeholder: `enterSite`,
-          icon: <FiSearch />,
-          labelProp: 'name',
-          matcherBy: 'id',
-          serverRequest: (search: string) => searchUsers({ search }),
         },
       },
-      // age: {
-      //   type: 'string',
-      //   'x-component': 'NumberInput',
-      //   'x-decorator': 'FormItem',
-      //   'x-component-props': {
-      //     label: 'Age',
-      //     placeholder: `enterSite`,
-      //     precision: 2,
-      //     icon: <FiSearch />,
-      //   },
-      // },
-      // birthDay: {
-      //   'x-component': 'TimeInput',
-      //   'x-decorator': 'FormItem',
-      //   'x-component-props': {
-      //     label: 'Birthday',
-      //     clearable: true,
-      //     placeholder: `enterSite`,
-      //     icon: <FiClock />,
-      //   },
-      // },
-      // password: {
-      //   'x-component': 'PasswordInput',
-      //   'x-decorator': 'FormItem',
-      //   'x-component-props': {
-      //     label: 'Password',
-      //     placeholder: `enterSite`,
-      //     icon: <FiClock />,
-      //   },
-      // },
-      // color: {
-      //   'x-component': 'ColorInput',
-      //   'x-decorator': 'FormItem',
-      //   'x-component-props': {
-      //     label: 'Color',
-      //     placeholder: `enterSite`,
-      //   },
-      // },
-      // file: {
-      //   'x-component': 'UploadFile',
-      //   'x-decorator': 'FormItem',
-      //   'x-component-props': {
-      //     label: 'File',
-      //     clearable: true,
-      //     accept: IMAGE_MIME_TYPE,
-      //     placeholder: `enterFile`,
-      //   },
-      // },
+      dateRange: {
+        required: true,
+        'x-component': 'DateRangePicker',
+        'x-component-props': {
+          label: 'Select box',
+          feedbackText: 'The field should be not blank',
+          placeholder: `enterSite`,
+        },
+      },
+      checkbox: {
+        'x-component': 'Checkbox',
+        'x-component-props': {
+          label: 'Select box',
+        },
+      },
+      switch: {
+        'x-component': 'Switch',
+        'x-component-props': {
+          label: 'Select box',
+          onLabel: 'Active',
+          offLabel: 'Inactive',
+        },
+      },
       // attachments: {
       //   type: 'array',
       //   'x-component': 'RepeatItem',
       //   'x-component-props': {
       //     label: 'Attachments',
-      //     fieldGroupClassName: 'grid grid-cols-3 gap-4',
       //   },
-      //   // required: true,
       //   items: {
       //     type: 'void',
       //     properties: {
-      //       test: {
-      //         type: 'object',
-      //         properties: {
-      //           file: {
-      //             required: true,
-      //             'x-decorator': 'FormItem',
-      //             'x-component': 'SharingFile',
-      //           },
+      //       file: {
+      //         required: true,
+      //         'x-component': 'SharingFile',
+      //         'x-component-props': {
+      //           accept: IMAGE_MIME_TYPE,
+      //           feedbackText: 'The field should be not blank',
+      //           serverRequest: (file: File) =>
+      //             uploadFile('employee', file, true, false),
       //         },
       //       },
       //     },

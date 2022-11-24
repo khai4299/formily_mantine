@@ -6,7 +6,11 @@ import {
 } from '@mantine/core';
 import { useField } from '@formily/react';
 import { Field } from '@formily/core';
-import { BaseFormItemProps, useDebounce } from '@formily-mantine/cdk';
+import {
+  BaseFormItemProps,
+  convertOptions,
+  useDebounce,
+} from '@formily-mantine/cdk';
 import { useMutation } from 'react-query';
 import { uniqBy } from 'lodash';
 
@@ -29,17 +33,22 @@ const MultiSelect: FC<Partial<MultiSelectProps> & BaseFormItemProps & Props> = (
   const [options, setOptions] = useState<SelectItemProps[]>([]);
   const [searchValue, setSearchValue] = useState('');
   const searchQuery = useDebounce(searchValue, 500);
+
+  const { mutate } = useMutation(props.serverRequest, {
+    onSuccess: (response) => {
+      const optionsTotal = field.value
+        ? uniqBy([...response, ...field.value], props.matcherBy)
+        : response;
+      setOptions(convertOptions(optionsTotal, props.labelProp));
+    },
+    onError: () => {
+      setOptions([]);
+    },
+  });
+
   useEffect(() => {
     if (props.options) {
-      setOptions(
-        props.options.map((option) => {
-          return {
-            ...option,
-            value: option.id,
-            label: option[props.labelProp],
-          };
-        })
-      );
+      setOptions(convertOptions(props.options, props.labelProp));
     }
   }, [props.options]);
   useEffect(() => {
@@ -48,27 +57,6 @@ const MultiSelect: FC<Partial<MultiSelectProps> & BaseFormItemProps & Props> = (
     }
   }, [searchQuery]);
 
-  const { mutate } = useMutation(props.serverRequest, {
-    onSuccess: (response) => {
-      const optionsTotal = field.value
-        ? uniqBy([...response, ...field.value], props.matcherBy)
-        : response;
-      setOptions(
-        uniqBy([...response, ...optionsTotal], props.matcherBy).map(
-          (option) => {
-            return {
-              ...option,
-              value: option.id,
-              label: option[props.labelProp],
-            };
-          }
-        )
-      );
-    },
-    onError: () => {
-      setOptions([]);
-    },
-  });
   const onChange = (values: string[]) => {
     const items = values.map((value) => {
       return (

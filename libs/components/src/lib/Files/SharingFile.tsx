@@ -5,35 +5,43 @@ import { FaCloudUploadAlt, FaRegCheckCircle } from 'react-icons/fa';
 import { BiErrorCircle } from 'react-icons/bi';
 import { StyledUpload } from './styles';
 import { useMutation } from 'react-query';
-import { uploadFile } from '@formily-mantine/cdk';
+import {
+  BaseFormItemProps,
+  takeMessageForm,
+  useFieldValidate,
+} from '@formily-mantine/cdk';
 import { FileRejection } from 'react-dropzone';
+import { useField } from '@formily/react';
+import { Field } from '@formily/core';
 
 interface Props {
   label: string;
   required?: boolean;
-  onChange: any;
   value: string;
-  error?: boolean;
-  feedbackText: string;
+  serverRequest: (file: File) => Promise<any>;
+  onChange: (subPath: Record<string, string> | null) => void;
 }
 
-const SharingFile: FC<DropzoneProps & Props> = (props) => {
+const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
   const [fileReject, setFileReject] = useState<FileWithPath | null>(null);
   const [fileDrop, setFileDrop] = useState<FileWithPath | null>(null);
-  const { mutate: upload, isLoading } = useMutation(uploadFile, {
+  const error = useFieldValidate();
+  const field = useField<Field>();
+  const { mutate: upload, isLoading } = useMutation(props.serverRequest, {
     onSuccess: (response) => {
-      props.onChange(response);
+      props.onChange({ url: response });
     },
     onError: () => {
       props.onChange(null);
       setFileReject(null);
+      setFileDrop(null);
     },
   });
   const onDrop = (fileDrops: FileWithPath[]) => {
     const file = fileDrops[0];
     setFileDrop(file);
     setFileReject(null);
-    upload({ subPath: 'employee', file: file });
+    upload(file);
   };
   const onReject = (fileRejects: FileRejection[]) => {
     const file = fileRejects[0];
@@ -49,7 +57,7 @@ const SharingFile: FC<DropzoneProps & Props> = (props) => {
     } else {
       setFileDrop(file);
       setFileReject(null);
-      upload({ subPath: 'employee', file: file });
+      upload(file);
     }
   };
   return (
@@ -59,7 +67,7 @@ const SharingFile: FC<DropzoneProps & Props> = (props) => {
         {props.required && <span className="text-red-500"> *</span>}
       </label>
       <div>
-        {!props.value && !fileReject && (
+        {!fileDrop && !fileReject && (
           <Dropzone
             loading={isLoading}
             className="border border-dashed border-blue-600 mb-5px p-0 "
@@ -78,7 +86,7 @@ const SharingFile: FC<DropzoneProps & Props> = (props) => {
             </Group>
           </Dropzone>
         )}
-        {(props.value || fileReject) && (
+        {(fileDrop || fileReject) && (
           <FileInput
             value={fileDrop ? fileDrop : fileReject}
             icon={
@@ -96,8 +104,10 @@ const SharingFile: FC<DropzoneProps & Props> = (props) => {
           />
         )}
       </div>
-      {props.error && (
-        <div className="text-xs text-red-500">{props.feedbackText}</div>
+      {error && (
+        <div className="text-xs text-red-500">
+          {takeMessageForm(field, takeMessageForm(field, props.feedbackText))}
+        </div>
       )}
     </StyledUpload>
   );

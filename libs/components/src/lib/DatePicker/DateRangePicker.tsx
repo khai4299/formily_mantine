@@ -6,18 +6,21 @@ import {
 } from '@formily-mantine/cdk';
 
 import {
-  DatePicker as DatePickerMantine,
-  DatePickerProps,
+  DateRangePicker as DateRangePickerMantine,
+  DateRangePickerProps,
 } from '@mantine/dates';
 import { useField } from '@formily/react';
 import { Field } from '@formily/core';
 
-const DatePicker: FC<DatePickerProps & BaseFormItemProps> = (props) => {
+const DateRangePicker: FC<DateRangePickerProps & BaseFormItemProps> = (
+  props
+) => {
   const field = useField<Field>();
   const error = useFieldValidate();
   return (
-    <DatePickerMantine
+    <DateRangePickerMantine
       {...props}
+      amountOfMonths={props.amountOfMonths || 2}
       required={field.required}
       readOnly={!!props.readOnly}
       error={error && takeMessageForm(field, props.feedbackText)}
@@ -25,4 +28,4 @@ const DatePicker: FC<DatePickerProps & BaseFormItemProps> = (props) => {
   );
 };
 
-export default DatePicker;
+export default DateRangePicker;
