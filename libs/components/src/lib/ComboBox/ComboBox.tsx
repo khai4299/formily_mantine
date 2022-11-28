@@ -7,7 +7,7 @@ import {
 import { SelectSharedProps } from '@mantine/core/lib/Select/Select';
 import { useField } from '@formily/react';
 import { useMutation } from 'react-query';
-import { BaseFormItemProps } from '@formily-mantine/common';
+import { BaseFormItemProps } from '@formily-mantine/cdk';
 import { Field } from '@formily/core';
 import {
   convertOptions,

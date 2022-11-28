@@ -13,14 +13,7 @@ module.exports = {
     ...createGlobPatternsForDependencies(__dirname),
   ],
   theme: {
-    extend: {
-      spacing: {
-        '5px': '5px',
-      },
-      maxWidth: {
-        '256px': '256px',
-      },
-    },
+    extend: {},
   },
-  plugins: [],
+  plugins: [require('tailwindcss-font-inter')],
 };

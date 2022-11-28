@@ -9,7 +9,9 @@ import { Field } from '@formily/core';
 import {
   BaseFormItemProps,
   convertOptions,
+  takeMessageForm,
   useDebounce,
+  useFieldValidate,
 } from '@formily-mantine/cdk';
 import { useMutation } from 'react-query';
 import { uniqBy } from 'lodash';
@@ -30,6 +32,7 @@ const MultiSelect: FC<Partial<MultiSelectProps> & BaseFormItemProps & Props> = (
   props
 ) => {
   const field = useField<Field>();
+  const error = useFieldValidate();
   const [options, setOptions] = useState<SelectItemProps[]>([]);
   const [searchValue, setSearchValue] = useState('');
   const searchQuery = useDebounce(searchValue, 500);
@@ -78,7 +81,7 @@ const MultiSelect: FC<Partial<MultiSelectProps> & BaseFormItemProps & Props> = (
       onSearchChange={setSearchValue}
       onChange={onChange}
       nothingFound={'Nothing found'}
-      error={props.error && props.feedbackText}
+      error={error && takeMessageForm(field, props.feedbackText)}
     />
   );
 };

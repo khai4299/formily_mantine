@@ -1,10 +1,10 @@
 /* eslint-disable */
 export default {
-  displayName: 'common',
+  displayName: 'core',
   preset: '../../jest.preset.js',
   transform: {
     '^.+\\.[tj]sx?$': 'babel-jest',
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-  coverageDirectory: '../../coverage/libs/common',
+  coverageDirectory: '../../coverage/libs/core',
 };

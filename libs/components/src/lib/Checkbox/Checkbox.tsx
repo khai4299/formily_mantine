@@ -18,6 +18,7 @@ const Checkbox: FC<CheckboxProps & BaseFormItemProps & Props> = (props) => {
   return (
     <CheckboxMantine
       {...props}
+      label={<span className="font-semibold">{props.label}</span>}
       checked={!!field.value}
       onChange={(event) => {
         props.onChange?.(event.currentTarget.checked);

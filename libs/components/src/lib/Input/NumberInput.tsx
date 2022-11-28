@@ -5,10 +5,15 @@ import {
 } from '@mantine/core';
 import { useField } from '@formily/react';
 import { Field } from '@formily/core';
-import { BaseFormItemProps } from '@formily-mantine/cdk';
+import {
+  BaseFormItemProps,
+  takeMessageForm,
+  useFieldValidate,
+} from '@formily-mantine/cdk';
 
 const NumberInput: FC<NumberInputProps & BaseFormItemProps> = (props) => {
   const field = useField<Field>();
+  const error = useFieldValidate();
 
   return (
     <NumberInputMantine
@@ -20,7 +25,7 @@ const NumberInput: FC<NumberInputProps & BaseFormItemProps> = (props) => {
       }
       decimalSeparator=","
       hideControls={true}
-      error={props.error && props.feedbackText}
+      error={error && takeMessageForm(field, props.feedbackText)}
     />
   );
 };

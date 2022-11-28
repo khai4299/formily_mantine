@@ -5,7 +5,11 @@ import {
   SelectProps,
 } from '@mantine/core';
 import { useField } from '@formily/react';
-import { BaseFormItemProps } from '@formily-mantine/cdk';
+import {
+  BaseFormItemProps,
+  takeMessageForm,
+  useFieldValidate,
+} from '@formily-mantine/cdk';
 import { Field } from '@formily/core';
 
 interface SelectItemProps extends SelectItem {
@@ -23,6 +27,8 @@ interface Props {
 const Select: FC<Props & BaseFormItemProps & SelectProps> = (props) => {
   const [options, setOptions] = useState<SelectItemProps[]>([]);
   const field = useField<Field>();
+  const error = useFieldValidate();
+
   useEffect(() => {
     if (props.options) {
       setOptions(
@@ -52,7 +58,7 @@ const Select: FC<Props & BaseFormItemProps & SelectProps> = (props) => {
           props.onChange?.(item);
         }
       }}
-      error={props.error && props.feedbackText}
+      error={error && takeMessageForm(field, props.feedbackText)}
     />
   );
 };

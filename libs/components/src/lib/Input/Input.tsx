@@ -2,16 +2,21 @@ import React, { FC } from 'react';
 import { TextInput, TextInputProps } from '@mantine/core';
 import { useField } from '@formily/react';
 import { Field } from '@formily/core';
-import { BaseFormItemProps } from '@formily-mantine/cdk';
+import {
+  BaseFormItemProps,
+  takeMessageForm,
+  useFieldValidate,
+} from '@formily-mantine/cdk';
 
 const Input: FC<TextInputProps & BaseFormItemProps> = (props) => {
   const field = useField<Field>();
+  const error = useFieldValidate();
   return (
     <TextInput
       {...props}
-      required={field.required}
+      withAsterisk={field.required}
       readOnly={!!props.readOnly}
-      error={props.error && props.feedbackText}
+      error={error && takeMessageForm(field, props.feedbackText)}
     />
   );
 };

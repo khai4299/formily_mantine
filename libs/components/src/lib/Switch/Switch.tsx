@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC } from 'react';
 import { Switch as SwitchMantine, SwitchProps } from '@mantine/core';
 import { useField } from '@formily/react';
 import { Field } from '@formily/core';

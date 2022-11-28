@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { ModulesHome } from '@formily-mantine/home';
+import { ModulesAuth } from '@formily-mantine/modules/auth';
 
 const StyledApp = styled.div`
   // Your style here
@@ -8,7 +8,7 @@ const StyledApp = styled.div`
 export function App() {
   return (
     <StyledApp>
-      <ModulesHome />
+      <ModulesAuth />
     </StyledApp>
   );
 }
