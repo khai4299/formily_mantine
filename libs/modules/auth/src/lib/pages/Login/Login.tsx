@@ -1,45 +1,38 @@
-import React, { MouseEvent, useState } from 'react';
+import React, { MouseEvent } from 'react';
 import { StyledLogin } from './styles';
 import {
-  Input,
-  PasswordInput,
   Checkbox,
+  Input,
   Link,
+  PasswordInput,
 } from '@formily-mantine/components';
 import { createSchemaField, FormProvider } from '@formily/react';
 import { createForm } from '@formily/core';
 import { Button } from '@mantine/core';
-import { useMutation } from '@tanstack/react-query';
-import { login, preFlight } from '../../services';
+import { useMutation } from 'react-query';
+import { login, preFlight, saveToken } from '../../services';
 import CryptoJS from 'crypto-js';
+import { useLocation } from 'react-router-dom';
 
+interface AuthPayload {
+  username: string;
+  password: string;
+  rememberMe: boolean;
+}
+
+const form = createForm();
+const SchemaField = createSchemaField({
+  components: {
+    Input,
+    PasswordInput,
+    Checkbox,
+  },
+});
 const Login = () => {
-  const form = createForm();
-  // const { mutate: onLogin, isLoading } = useMutation(login, {
-  //   onSuccess: (response) => {
-  //     console.log('123');
-  //   },
-  //   onError: () => {
-  //     form.fields['password'].setState((state) => state.invalid);
-  //   },
-  // });
-  // const onPreflight = useMutation(preFlight, {
-  //   onSuccess: (response) => {
-  //     console.log(response);
-  //   },
-  //
-  // });
-  const mutation = useMutation({
-    mutationFn: preFlight,
-  });
+  const { mutate: onLogin, isLoading: isLoadingLogin } = useMutation(login);
+  const { mutate: onPreflight, isLoading: isLoadingPreflight } =
+    useMutation(preFlight);
 
-  const SchemaField = createSchemaField({
-    components: {
-      Input,
-      PasswordInput,
-      Checkbox,
-    },
-  });
   const schema = {
     type: 'object',
     properties: {
@@ -69,37 +62,68 @@ const Login = () => {
       },
     },
   };
-  const handleOnSubmit = (data: Record<string, string>) => {
-    mutation.mutate(data['username']);
-    console.log(data);
+  const handleOnSubmit = (data: AuthPayload) => {
+    onPreflight(data.username, {
+      onSuccess: (preflight) => {
+        const key = CryptoJS.enc.Base64.parse(preflight.data.secret).toString(
+          CryptoJS.enc.Utf8
+        );
+        const payload = {
+          username: data.username,
+          password: CryptoJS.AES.encrypt(data.password, key).toString(
+            CryptoJS.format.OpenSSL
+          ),
+        };
+        onLogin(payload, {
+          onSuccess: (authInfo) => {
+            saveToken(
+              authInfo.access_token,
+              authInfo.refresh_token,
+              data.rememberMe
+            );
+          },
+          onError: (error) => {
+            form.setFieldState('password', (state: any) => {
+              state.setSelfErrors(['wrong']);
+            });
+          },
+        });
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    });
   };
   return (
     <StyledLogin>
-      <FormProvider form={form}>
-        <form
-          onSubmit={(e) => {
-            // e.stopPropagation();
+      <div className="absolute bg-white p-10 rounded-xl h-fit m-auto inset-0 w-[450px]">
+        <img
+          className="mx-auto mb-10 w-48 block"
+          src={'assets/logo.svg'}
+          alt=""
+        />
+        <FormProvider form={form}>
+          <SchemaField schema={schema} />
+        </FormProvider>
+        <p>
+          Can't access your account? Please contact your{' '}
+          <Link href="https://www.facebook.com/saj.qtk/" target="_blank">
+            Mr.Khai
+          </Link>
+        </p>
+        <Button
+          size="lg"
+          loading={isLoadingLogin || isLoadingPreflight}
+          className="block mx-auto mt-6 w-full"
+          onClick={(e: MouseEvent<HTMLButtonElement>) => {
+            e.stopPropagation();
             e.preventDefault();
             form.submit(handleOnSubmit).catch(() => false);
           }}
         >
-          <div className="absolute bg-white p-10 rounded-xl h-fit m-auto inset-0 w-[450px]">
-            <img
-              className="mx-auto mb-10 w-48 block"
-              src={'assets/logo.svg'}
-              alt=""
-            />
-            <SchemaField schema={schema} />
-            <p>
-              Can't access your account? Please contact your{' '}
-              <Link href="https://www.facebook.com/saj.qtk/" target="_blank">
-                Mr.Khai
-              </Link>
-            </p>
-            <Button type="submit">Submit</Button>
-          </div>
-        </form>
-      </FormProvider>
+          Login
+        </Button>
+      </div>
     </StyledLogin>
   );
 };

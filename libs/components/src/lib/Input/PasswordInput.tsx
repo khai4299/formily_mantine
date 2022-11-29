@@ -15,10 +15,11 @@ import {
 const PasswordInput: FC<PasswordInputProps & BaseFormItemProps> = (props) => {
   const field = useField<Field>();
   const error = useFieldValidate();
+  console.log(field.selfErrors);
   return (
     <PasswordInputMantine
       {...props}
-      required={field.required}
+      withAsterisk={field.required}
       readOnly={!!props.readOnly}
       error={error && takeMessageForm(field, props.feedbackText)}
       visibilityToggleIcon={({ reveal, size }) =>

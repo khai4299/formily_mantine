@@ -1,15 +1,19 @@
-import styled from 'styled-components';
 import { ModulesAuth } from '@formily-mantine/modules/auth';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
-const StyledApp = styled.div`
-  // Your style here
-`;
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 export function App() {
   return (
-    <StyledApp>
+    <QueryClientProvider client={queryClient}>
       <ModulesAuth />
-    </StyledApp>
+    </QueryClientProvider>
   );
 }
 
