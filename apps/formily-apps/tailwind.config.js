@@ -13,7 +13,11 @@ module.exports = {
     ...createGlobPatternsForDependencies(__dirname),
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'red-error': '#fa5252',
+      },
+    },
   },
   plugins: [require('tailwindcss-font-inter')],
 };

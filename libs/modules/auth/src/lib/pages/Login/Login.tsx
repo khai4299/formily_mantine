@@ -1,10 +1,11 @@
-import React, { MouseEvent } from 'react';
+import React, { MouseEvent, useState } from 'react';
 import { StyledLogin } from './styles';
 import {
   Checkbox,
   Input,
   Link,
   PasswordInput,
+  ValidatorText,
 } from '@formily-mantine/components';
 import { createSchemaField, FormProvider } from '@formily/react';
 import { createForm } from '@formily/core';
@@ -12,7 +13,6 @@ import { Button } from '@mantine/core';
 import { useMutation } from 'react-query';
 import { login, preFlight, saveToken } from '../../services';
 import CryptoJS from 'crypto-js';
-import { useLocation } from 'react-router-dom';
 
 interface AuthPayload {
   username: string;
@@ -32,9 +32,8 @@ const Login = () => {
   const { mutate: onLogin, isLoading: isLoadingLogin } = useMutation(login);
   const { mutate: onPreflight, isLoading: isLoadingPreflight } =
     useMutation(preFlight);
-
+  const [statusError, setStatusError] = useState<number | null>(null);
   const schema = {
-    type: 'object',
     properties: {
       username: {
         required: true,
@@ -45,14 +44,18 @@ const Login = () => {
         },
       },
       password: {
-        required: true,
         'x-component': 'PasswordInput',
+        required: true,
         'x-component-props': {
           label: 'Password',
           className: 'mt-5',
           placeholder: `Enter password`,
         },
       },
+    },
+  };
+  const schemaSecond = {
+    properties: {
       rememberMe: {
         'x-component': 'Checkbox',
         'x-component-props': {
@@ -62,6 +65,7 @@ const Login = () => {
       },
     },
   };
+
   const handleOnSubmit = (data: AuthPayload) => {
     onPreflight(data.username, {
       onSuccess: (preflight) => {
@@ -75,17 +79,16 @@ const Login = () => {
           ),
         };
         onLogin(payload, {
-          onSuccess: (authInfo) => {
+          onSuccess: ({ data: authInfo }) => {
             saveToken(
               authInfo.access_token,
               authInfo.refresh_token,
               data.rememberMe
             );
+            setStatusError(null);
           },
-          onError: (error) => {
-            form.setFieldState('password', (state: any) => {
-              state.setSelfErrors(['wrong']);
-            });
+          onError: ({ response }: any) => {
+            setStatusError(response.status);
           },
         });
       },
@@ -104,6 +107,26 @@ const Login = () => {
         />
         <FormProvider form={form}>
           <SchemaField schema={schema} />
+          {statusError && (
+            <ValidatorText
+              message={
+                statusError === 401
+                  ? 'The username or password is incorrect.'
+                  : 'The server is not responding.'
+              }
+            />
+          )}
+          <SchemaField schema={schemaSecond} />
+          {/*<Field*/}
+          {/*  name="rememberMe"*/}
+          {/*  component={[*/}
+          {/*    Checkbox,*/}
+          {/*    {*/}
+          {/*      label: 'Remember my login on this computer',*/}
+          {/*      className: 'block mt-5',*/}
+          {/*    },*/}
+          {/*  ]}*/}
+          {/*/>*/}
         </FormProvider>
         <p>
           Can't access your account? Please contact your{' '}

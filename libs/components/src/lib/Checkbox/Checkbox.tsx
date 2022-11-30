@@ -9,7 +9,7 @@ import {
 } from '@formily-mantine/cdk';
 
 interface Props {
-  onChange: (checked: boolean) => void;
+  onChange?: (checked: boolean) => void;
 }
 
 const Checkbox: FC<CheckboxProps & BaseFormItemProps & Props> = (props) => {

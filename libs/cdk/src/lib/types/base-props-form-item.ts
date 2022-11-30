@@ -1,3 +1,3 @@
 export interface BaseFormItemProps {
-  feedbackText: string;
+  feedbackText?: string;
 }

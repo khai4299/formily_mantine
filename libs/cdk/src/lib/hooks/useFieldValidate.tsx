@@ -10,9 +10,8 @@ import {
 export const useFieldValidate = () => {
   const [error, setError] = useState<boolean>(false);
   const field = useField<Field | ArrayField>();
-
   useFormEffects(() => {
-    onFieldValidateFailed(field.address, () => {
+    onFieldValidateFailed(field.address, (field) => {
       setError(true);
     });
     onFieldValidateSuccess(field.address, () => {

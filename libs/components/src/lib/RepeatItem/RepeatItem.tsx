@@ -49,11 +49,6 @@ const RepeatItem = (props: Props) => {
           );
         })}
       </div>
-      {/*{error && (*/}
-      {/*  <div className="mantine-1oc5s83">*/}
-      {/*    {takeMessageForm(fields, props.feedbackText)}*/}
-      {/*  </div>*/}
-      {/*)}*/}
       <ActionIcon
         className="mt-4"
         variant="filled"

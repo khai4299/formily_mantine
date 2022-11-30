@@ -15,7 +15,6 @@ import {
 const PasswordInput: FC<PasswordInputProps & BaseFormItemProps> = (props) => {
   const field = useField<Field>();
   const error = useFieldValidate();
-  console.log(field.selfErrors);
   return (
     <PasswordInputMantine
       {...props}

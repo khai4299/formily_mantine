@@ -1,13 +1,12 @@
 import axios from 'axios';
 import { BaseReponse } from '@formily-mantine/cdk';
-import { Preflight, AuthInfo } from '../types';
+import { AuthInfo, Preflight } from '../types';
 
 export const login = async (payload: Record<string, string>) => {
-  const res = await axios.post<AuthInfo>(
+  return await axios.post<AuthInfo>(
     process.env['NX_API_GATEWAY_URL'] + '/auth',
     payload
   );
-  return res.data;
 };
 export const preFlight = async (username: string) => {
   const res = await axios.post<BaseReponse<Preflight>>(
