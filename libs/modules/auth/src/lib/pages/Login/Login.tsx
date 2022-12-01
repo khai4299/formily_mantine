@@ -1,4 +1,4 @@
-import React, { MouseEvent, useState } from 'react';
+import React, { MouseEvent } from 'react';
 import { StyledLogin } from './styles';
 import {
   Checkbox,
@@ -13,6 +13,7 @@ import { Button } from '@mantine/core';
 import { useMutation } from 'react-query';
 import { login, preFlight, saveToken } from '../../services';
 import CryptoJS from 'crypto-js';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface AuthPayload {
   username: string;
@@ -26,15 +27,21 @@ const SchemaField = createSchemaField({
     Input,
     PasswordInput,
     Checkbox,
+    ValidatorText,
   },
 });
 const Login = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const { mutate: onLogin, isLoading: isLoadingLogin } = useMutation(login);
   const { mutate: onPreflight, isLoading: isLoadingPreflight } =
     useMutation(preFlight);
-  const [statusError, setStatusError] = useState<number | null>(null);
   const schema = {
     properties: {
+      error: {
+        'x-component': 'ValidatorText',
+      },
       username: {
         required: true,
         'x-component': 'Input',
@@ -52,10 +59,6 @@ const Login = () => {
           placeholder: `Enter password`,
         },
       },
-    },
-  };
-  const schemaSecond = {
-    properties: {
       rememberMe: {
         'x-component': 'Checkbox',
         'x-component-props': {
@@ -85,15 +88,20 @@ const Login = () => {
               authInfo.refresh_token,
               data.rememberMe
             );
-            setStatusError(null);
+            navigate(location.state?.from || '/', { replace: true });
           },
           onError: ({ response }: any) => {
-            setStatusError(response.status);
+            form.setValuesIn(
+              'error',
+              response.status === 401
+                ? 'The username or password is incorrect.'
+                : 'The server is not responding.'
+            );
           },
         });
       },
-      onError: (error) => {
-        console.log(error);
+      onError: () => {
+        form.setValuesIn('error', 'The server is not responding.');
       },
     });
   };
@@ -107,26 +115,6 @@ const Login = () => {
         />
         <FormProvider form={form}>
           <SchemaField schema={schema} />
-          {statusError && (
-            <ValidatorText
-              message={
-                statusError === 401
-                  ? 'The username or password is incorrect.'
-                  : 'The server is not responding.'
-              }
-            />
-          )}
-          <SchemaField schema={schemaSecond} />
-          {/*<Field*/}
-          {/*  name="rememberMe"*/}
-          {/*  component={[*/}
-          {/*    Checkbox,*/}
-          {/*    {*/}
-          {/*      label: 'Remember my login on this computer',*/}
-          {/*      className: 'block mt-5',*/}
-          {/*    },*/}
-          {/*  ]}*/}
-          {/*/>*/}
         </FormProvider>
         <p>
           Can't access your account? Please contact your{' '}

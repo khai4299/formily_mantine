@@ -20,7 +20,8 @@
       "@formily-mantine/components": ["libs/components/src/index.ts"],
       "@formily-mantine/core": ["libs/core/src/index.ts"],
       "@formily-mantine/home": ["libs/modules/home/src/index.ts"],
-      "@formily-mantine/modules/auth": ["libs/modules/auth/src/index.ts"]
+      "@formily-mantine/modules/auth": ["libs/modules/auth/src/index.ts"],
+      "@formily-mantine/modules/common": ["libs/modules/common/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

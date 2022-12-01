@@ -1,14 +1,26 @@
 import React from 'react';
+import { Notification } from '@mantine/core';
+import { IoMdClose } from 'react-icons/io';
 
 interface Props {
-  message: string;
+  value: string;
+  onChange: (value: string) => void;
 }
 
-const ValidatorText = ({ message }: Props) => {
+const ValidatorText = ({ value, onChange }: Props) => {
   return (
-    <div className="block text-[12px] text-[#fa5252] leading-[1.2]">
-      {message}
-    </div>
+    <>
+      {value && (
+        <Notification
+          className="my-4 border-none shadow-md bg-red-100"
+          icon={<IoMdClose size={18} />}
+          color="red"
+          onClose={() => onChange('')}
+        >
+          <span className="text-red-500">{value}</span>
+        </Notification>
+      )}
+    </>
   );
 };
 
