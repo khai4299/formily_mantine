@@ -69,7 +69,7 @@ const Login = () => {
     },
   };
 
-  const handleOnSubmit = (data: AuthPayload) => {
+  const handleSubmit = (data: AuthPayload) => {
     onPreflight(data.username, {
       onSuccess: (preflight) => {
         const key = CryptoJS.enc.Base64.parse(preflight.data.secret).toString(
@@ -88,7 +88,7 @@ const Login = () => {
               authInfo.refresh_token,
               data.rememberMe
             );
-            navigate(location.state?.from || '/', { replace: true });
+            navigate(location.state?.from || '/asdsad', { replace: true });
           },
           onError: ({ response }: any) => {
             form.setValuesIn(
@@ -129,7 +129,7 @@ const Login = () => {
           onClick={(e: MouseEvent<HTMLButtonElement>) => {
             e.stopPropagation();
             e.preventDefault();
-            form.submit(handleOnSubmit).catch(() => false);
+            form.submit(handleSubmit).catch(() => false);
           }}
         >
           Login

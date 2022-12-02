@@ -1,8 +1,12 @@
 import React, { FC, useState } from 'react';
 import { FileInput, Group, Loader, Text } from '@mantine/core';
 import { Dropzone, DropzoneProps, FileWithPath } from '@mantine/dropzone';
-import { FaCloudUploadAlt, FaRegCheckCircle } from 'react-icons/fa';
-import { BiErrorCircle } from 'react-icons/bi';
+import {
+  IconInfoCircle,
+  IconCloudUpload,
+  IconCircleCheck,
+} from '@tabler/icons';
+
 import { StyledUpload } from './styles';
 import { useMutation } from 'react-query';
 import {
@@ -77,7 +81,7 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
           >
             <Group position="center" spacing="xl">
               <Dropzone.Idle>
-                <FaCloudUploadAlt className="text-blue-600" size={40} />
+                <IconCloudUpload className="text-blue-600" size={40} />
               </Dropzone.Idle>
               <label className="inline-flex">
                 <Text className="text-blue-600"> Choose a file&nbsp;</Text>
@@ -93,9 +97,9 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
               isLoading ? (
                 <Loader size="sm" />
               ) : fileDrop ? (
-                <FaRegCheckCircle className="text-green-600" />
+                <IconCircleCheck className="text-green-600" />
               ) : (
-                <BiErrorCircle className="text-red-600" />
+                <IconInfoCircle className="text-red-600" />
               )
             }
             error={fileReject && 'Wrong file type'}

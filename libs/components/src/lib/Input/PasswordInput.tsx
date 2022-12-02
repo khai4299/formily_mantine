@@ -3,7 +3,7 @@ import {
   PasswordInput as PasswordInputMantine,
   PasswordInputProps,
 } from '@mantine/core';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { IconEye, IconEyeOff } from '@tabler/icons';
 import { useField } from '@formily/react';
 import { Field } from '@formily/core';
 import {
@@ -22,7 +22,7 @@ const PasswordInput: FC<PasswordInputProps & BaseFormItemProps> = (props) => {
       readOnly={!!props.readOnly}
       error={error && takeMessageForm(field, props.feedbackText)}
       visibilityToggleIcon={({ reveal, size }) =>
-        reveal ? <FiEye size={size} /> : <FiEyeOff size={size} />
+        reveal ? <IconEye size={size} /> : <IconEyeOff size={size} />
       }
     />
   );

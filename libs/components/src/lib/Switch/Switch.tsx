@@ -16,13 +16,14 @@ const Switch: FC<SwitchProps & BaseFormItemProps & Props> = (props) => {
   const field = useField<Field>();
   const error = useFieldValidate();
   return (
-    <>
+    <div className={props.className}>
       <label className="inline-block text-sm font-medium break-all cursor-default">
         {props.label}
         {field.required && <span className="text-red-500"> *</span>}
       </label>
       <SwitchMantine
         {...props}
+        className=""
         checked={!!field.value}
         onChange={(event) => {
           props.onChange?.(event.currentTarget.checked);
@@ -33,7 +34,7 @@ const Switch: FC<SwitchProps & BaseFormItemProps & Props> = (props) => {
         readOnly={!!props.readOnly}
         error={error && takeMessageForm(field, props.feedbackText)}
       />
-    </>
+    </div>
   );
 };
 

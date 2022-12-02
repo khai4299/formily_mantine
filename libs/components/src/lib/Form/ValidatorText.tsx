@@ -1,6 +1,6 @@
 import React from 'react';
 import { Notification } from '@mantine/core';
-import { IoMdClose } from 'react-icons/io';
+import { IconX } from '@tabler/icons';
 
 interface Props {
   value: string;
@@ -13,7 +13,7 @@ const ValidatorText = ({ value, onChange }: Props) => {
       {value && (
         <Notification
           className="my-4 border-none shadow-md bg-red-100"
-          icon={<IoMdClose size={18} />}
+          icon={<IconX size={18} />}
           color="red"
           onClose={() => onChange('')}
         >

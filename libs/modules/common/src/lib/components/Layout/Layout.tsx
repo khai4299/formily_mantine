@@ -1,13 +1,14 @@
 import React from 'react';
 import { AppShell } from '@mantine/core';
-import { Navbar, Header } from '../../components';
+import { Navbar, Header } from '../index';
+import { Outlet } from 'react-router-dom';
 
-const Home = () => {
+const Layout = () => {
   return (
     <AppShell padding="md" navbar={<Navbar />} header={<Header />}>
-      {/* Your application here */}
+      <Outlet />
     </AppShell>
   );
 };
 
-export default Home;
+export default Layout;

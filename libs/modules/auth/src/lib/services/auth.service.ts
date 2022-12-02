@@ -8,6 +8,10 @@ export const login = async (payload: Record<string, string>) => {
     payload
   );
 };
+export const logout = () => {
+  localStorage.removeItem('access_token');
+  localStorage.removeItem('refresh_token');
+};
 export const preFlight = async (username: string) => {
   const res = await axios.post<BaseReponse<Preflight>>(
     process.env['NX_API_GATEWAY_URL'] + '/auth/pre-flight',
@@ -15,6 +19,7 @@ export const preFlight = async (username: string) => {
   );
   return res.data;
 };
+
 export const saveToken = (
   access_token: string,
   refresh_token: string,

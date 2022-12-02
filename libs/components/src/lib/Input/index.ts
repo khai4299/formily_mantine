@@ -3,3 +3,4 @@ export { default as NumberInput } from './NumberInput';
 export { default as TimeInput } from './TimeInput';
 export { default as PasswordInput } from './PasswordInput';
 export { default as ColorInput } from './ColorInput';
+export { default as Textarea } from './Textarea';

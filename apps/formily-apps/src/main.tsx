@@ -4,6 +4,7 @@ import { MantineProvider } from '@mantine/core';
 
 import App from './app/app';
 import './styles.scss';
+import { NotificationsProvider } from '@mantine/notifications';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -23,7 +24,9 @@ root.render(
         }),
       }}
     >
-      <App />
+      <NotificationsProvider>
+        <App />
+      </NotificationsProvider>
     </MantineProvider>
   </StrictMode>
 );

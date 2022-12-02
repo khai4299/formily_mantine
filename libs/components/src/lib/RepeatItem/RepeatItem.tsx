@@ -2,8 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { RecursionField, useField, useFieldSchema } from '@formily/react';
 import { ArrayField as ArrayFieldType } from '@formily/core';
 import { ActionIcon } from '@mantine/core';
-import { FiPlus } from 'react-icons/fi';
-import { MdClose } from 'react-icons/md';
+import { IconX, IconPlus } from '@tabler/icons';
 
 interface Props {
   label: string;
@@ -42,7 +41,7 @@ const RepeatItem = (props: Props) => {
                     setUpdateFields((prev) => !prev);
                   }}
                 >
-                  <MdClose />
+                  <IconX />
                 </ActionIcon>
               </div>
             </div>
@@ -58,7 +57,7 @@ const RepeatItem = (props: Props) => {
           setUpdateFields((prev) => !prev);
         }}
       >
-        <FiPlus />
+        <IconPlus />
       </ActionIcon>
     </div>
   );
