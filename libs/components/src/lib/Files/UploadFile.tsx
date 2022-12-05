@@ -1,6 +1,11 @@
 import React, { FC, useState } from 'react';
 import { FileInput, Group, Loader, Text } from '@mantine/core';
-import { Dropzone, DropzoneProps, FileWithPath } from '@mantine/dropzone';
+import {
+  Dropzone,
+  DropzoneProps,
+  FileWithPath,
+  IMAGE_MIME_TYPE,
+} from '@mantine/dropzone';
 import { IconInfoCircle, IconCloudUpload, IconCheck } from '@tabler/icons';
 import { StyledUpload } from './styles';
 import { useMutation } from 'react-query';
@@ -47,7 +52,7 @@ const UploadFile: FC<DropzoneProps & Props> = (props) => {
     }
   };
   return (
-    <StyledUpload>
+    <StyledUpload className={props.className}>
       <label className="inline-block text-sm font-medium break-all cursor-default">
         {props.label}
         {props.required && <span className="text-red-500"> *</span>}

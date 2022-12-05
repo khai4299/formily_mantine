@@ -24,6 +24,7 @@ import { ISchema } from '@formily/json-schema';
 import { Button, LoadingOverlay } from '@mantine/core';
 import ValidatorText from './ValidatorText';
 import './styles.scss';
+import { FormGrid } from '../FormGrid';
 
 interface ISchemaCustom extends ISchema {
   className?: string;
@@ -67,6 +68,7 @@ const Form = ({
       Checkbox,
       Switch,
       ValidatorText,
+      FormGrid,
     },
   });
   return (

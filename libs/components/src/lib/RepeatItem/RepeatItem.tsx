@@ -7,29 +7,28 @@ import { IconX, IconPlus } from '@tabler/icons';
 interface Props {
   label: string;
   feedbackText?: string;
-  fieldGroupClassName?: string;
+  className?: string;
+  onRemove?: (index: number) => void;
 }
 
 const RepeatItem = (props: Props) => {
   const fields = useField<ArrayFieldType>();
   const [updateFields, setUpdateFields] = useState<boolean>();
   const schema = useFieldSchema();
-  const dataSource = useMemo(() => {
-    return Array.isArray(fields.value) ? fields.value : [];
-  }, [updateFields]);
+  const dataSource = Array.isArray(fields.value) ? fields.value : [];
   return (
-    <div className="mantine-1m3pqry">
+    <div className={props.className}>
       <label className="mantine-ittua2 block">
         {props.label}
         {fields.required && <span className="mantine-u5apz8"> *</span>}
       </label>
-      <div className={props.fieldGroupClassName}>
+      <div>
         {dataSource?.map((item, index: number) => {
           const items = Array.isArray(schema.items)
             ? schema.items[index] || schema.items[0]
             : schema.items;
           return (
-            <div className="flex gap-2">
+            <div key={index} className="flex gap-2 form-row">
               <RecursionField schema={items!} name={index} />
               <div>
                 <ActionIcon
@@ -37,7 +36,13 @@ const RepeatItem = (props: Props) => {
                   variant="filled"
                   color="blue"
                   onClick={() => {
-                    fields.remove(index);
+                    fields
+                      .remove(index)
+                      .then(() => {
+                        props.onRemove?.(index);
+                      })
+                      .catch(() => false);
+
                     setUpdateFields((prev) => !prev);
                   }}
                 >

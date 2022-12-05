@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { FileInput, Group, Loader, Text } from '@mantine/core';
 import { Dropzone, DropzoneProps, FileWithPath } from '@mantine/dropzone';
 import {
@@ -64,8 +64,16 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
       upload(file);
     }
   };
+  useEffect(() => {
+    console.log(field.value);
+    if (!field.value) {
+      setFileReject(null);
+      setFileDrop(null);
+      props.onChange(null);
+    }
+  }, [field.value]);
   return (
-    <StyledUpload>
+    <StyledUpload className={props.className}>
       <label className="inline-block text-sm font-medium break-all cursor-default">
         {props.label}
         {props.required && <span className="text-red-500"> *</span>}
