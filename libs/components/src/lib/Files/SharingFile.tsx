@@ -6,7 +6,6 @@ import {
   IconCloudUpload,
   IconCircleCheck,
 } from '@tabler/icons';
-
 import { StyledUpload } from './styles';
 import { useMutation } from 'react-query';
 import {
@@ -17,59 +16,73 @@ import {
 import { FileRejection } from 'react-dropzone';
 import { useField } from '@formily/react';
 import { Field } from '@formily/core';
+import { isEmpty } from 'lodash';
+
+interface FilePath {
+  path?: string | null;
+  file?: string | null;
+}
 
 interface Props {
   label: string;
   required?: boolean;
-  value: string;
-  serverRequest: (file: File) => Promise<any>;
-  onChange: (subPath: Record<string, string> | null) => void;
+  value: Record<string, string>;
+  serverRequest: (file: File) => Promise<string>;
+  onChange: ({ path, file }: FilePath) => void;
 }
 
 const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
-  const [fileReject, setFileReject] = useState<FileWithPath | null>(null);
-  const [fileDrop, setFileDrop] = useState<FileWithPath | null>(null);
+  const [filePath, setFilePath] = useState<string | null>(null);
+  const [isReject, setIsReject] = useState<boolean>(false);
   const error = useFieldValidate();
   const field = useField<Field>();
-  const { mutate: upload, isLoading } = useMutation(props.serverRequest, {
+
+  const {
+    mutate: upload,
+    isLoading,
+    error: errorUpload,
+  } = useMutation(props.serverRequest, {
     onSuccess: (response) => {
-      props.onChange({ url: response });
+      props.onChange({ ...field.value, path: response });
     },
     onError: () => {
-      props.onChange(null);
-      setFileReject(null);
-      setFileDrop(null);
+      setIsReject(true);
     },
   });
-  const onDrop = (fileDrops: FileWithPath[]) => {
-    const file = fileDrops[0];
-    setFileDrop(file);
-    setFileReject(null);
+  const onUpdateSuccess = (file: File) => {
+    setIsReject(false);
+    props.onChange({ file: file.name });
     upload(file);
+  };
+  const onUpdateReject = (file: File) => {
+    setIsReject(true);
+    props.onChange({ file: file.name });
+  };
+  const onClear = () => {
+    setIsReject(false);
+    props.onChange({ path: null });
+  };
+  const onDrop = (fileDrops: File[]) => {
+    onUpdateSuccess(fileDrops[0]);
   };
   const onReject = (fileRejects: FileRejection[]) => {
     const file = fileRejects[0];
-    setFileReject(file.file);
-    setFileDrop(null);
-    props.onChange(null);
+    onUpdateReject(file.file);
   };
   const onChange = (file: File) => {
     if (!file) {
-      setFileReject(null);
-      setFileDrop(null);
-      props.onChange(null);
+      onClear();
     } else {
-      setFileDrop(file);
-      setFileReject(null);
-      upload(file);
+      if (!props.accept || (props.accept as string[]).includes(file.type)) {
+        onUpdateSuccess(file);
+      } else {
+        onUpdateReject(file);
+      }
     }
   };
   useEffect(() => {
-    console.log(field.value);
-    if (!field.value) {
-      setFileReject(null);
-      setFileDrop(null);
-      props.onChange(null);
+    if (field.value) {
+      setFilePath(field.value.file);
     }
   }, [field.value]);
   return (
@@ -79,7 +92,7 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
         {props.required && <span className="text-red-500"> *</span>}
       </label>
       <div>
-        {!fileDrop && !fileReject && (
+        {!filePath && (
           <Dropzone
             loading={isLoading}
             className="border border-dashed border-blue-600 mb-5px p-0 "
@@ -98,19 +111,22 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
             </Group>
           </Dropzone>
         )}
-        {(fileDrop || fileReject) && (
+        {filePath && (
           <FileInput
-            value={fileDrop ? fileDrop : fileReject}
+            value={{ name: filePath } as File}
             icon={
               isLoading ? (
                 <Loader size="sm" />
-              ) : fileDrop ? (
-                <IconCircleCheck className="text-green-600" />
-              ) : (
+              ) : isReject ? (
                 <IconInfoCircle className="text-red-600" />
+              ) : (
+                <IconCircleCheck className="text-green-600" />
               )
             }
-            error={fileReject && 'Wrong file type'}
+            accept={props.accept?.toString()}
+            error={
+              isReject && (errorUpload ? 'Update fail' : 'Wrong file type')
+            }
             clearable={true}
             onChange={onChange}
           />

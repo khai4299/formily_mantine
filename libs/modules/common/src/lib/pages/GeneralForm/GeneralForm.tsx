@@ -218,6 +218,7 @@ const GeneralForm = () => {
         'x-component-props': {
           label: 'Attachments',
           className: 'col-span-12',
+          classNameGroup: 'grid grid-cols-3 gap-4',
         },
         items: {
           type: 'void',
@@ -225,7 +226,6 @@ const GeneralForm = () => {
             file: {
               'x-component': 'SharingFile',
               'x-component-props': {
-                accept: IMAGE_MIME_TYPE,
                 className: 'form-row',
                 serverRequest: (file: File) =>
                   uploadFile('employee', file, true, false),
