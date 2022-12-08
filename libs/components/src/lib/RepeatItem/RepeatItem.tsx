@@ -2,8 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { RecursionField, useField, useFieldSchema } from '@formily/react';
 import { ArrayField as ArrayFieldType } from '@formily/core';
 import { ActionIcon } from '@mantine/core';
-import { IconX, IconPlus } from '@tabler/icons';
-import { isEmpty } from 'lodash';
+import { IconPlus, IconX } from '@tabler/icons';
+import { takeMessageForm, useFieldValidate } from '@formily-mantine/cdk';
 
 interface Props {
   label: string;
@@ -15,10 +15,12 @@ interface Props {
 
 const RepeatItem = (props: Props) => {
   const fields = useField<ArrayFieldType>();
+  const [updateField, setUpdateField] = useState(false);
+  const error = useFieldValidate();
   const schema = useFieldSchema();
   const dataSource = useMemo(() => {
     return Array.isArray(fields.value) ? fields.value : [];
-  }, [fields]);
+  }, [updateField]);
   return (
     <div className={props.className}>
       <label className="inline-block text-sm font-medium break-all cursor-default">
@@ -32,18 +34,14 @@ const RepeatItem = (props: Props) => {
             : schema.items;
           return (
             <div key={index} className="flex gap-2">
-              <RecursionField schema={items!} name={index} />
+              <RecursionField key={index} schema={items!} name={index} />
               <div className="flex items-center justify-center">
                 <ActionIcon
                   variant="filled"
                   color="blue"
                   onClick={() => {
-                    fields
-                      .remove(index)
-                      .then(() => {
-                        props.onRemove?.(index);
-                      })
-                      .catch(() => false);
+                    setUpdateField((prev) => !prev);
+                    fields.remove(index);
                   }}
                 >
                   <IconX />
@@ -53,12 +51,18 @@ const RepeatItem = (props: Props) => {
           );
         })}
       </div>
+      {error && (
+        <div className="text-xs text-red-500">
+          {takeMessageForm(fields, takeMessageForm(fields, props.feedbackText))}
+        </div>
+      )}
       <ActionIcon
         className="mt-4"
         variant="filled"
         color="blue"
         onClick={() => {
-          fields.push({});
+          setUpdateField((prev) => !prev);
+          fields.push(null);
         }}
       >
         <IconPlus />

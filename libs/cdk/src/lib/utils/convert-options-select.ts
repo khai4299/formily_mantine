@@ -6,13 +6,15 @@ interface SelectItemProps extends SelectItem {
 
 export const convertOptions = (
   options: SelectItemProps[],
-  labelProp: string
+  labelProp: string,
+  disabledProps?: string
 ) => {
   return options.map((option) => {
     return {
       ...option,
       value: option.id,
       label: option[labelProp],
+      disabled: disabledProps ? option[disabledProps] : option.disabled,
     };
   });
 };

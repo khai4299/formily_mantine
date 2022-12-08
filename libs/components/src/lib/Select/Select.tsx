@@ -28,7 +28,6 @@ const Select: FC<Props & BaseFormItemProps & SelectProps> = (props) => {
   const [options, setOptions] = useState<SelectItemProps[]>([]);
   const field = useField<Field>();
   const error = useFieldValidate();
-
   useEffect(() => {
     if (props.options) {
       setOptions(
@@ -63,4 +62,4 @@ const Select: FC<Props & BaseFormItemProps & SelectProps> = (props) => {
   );
 };
 
-export default React.memo(Select);
+export default Select;

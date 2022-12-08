@@ -23,6 +23,7 @@ interface SelectItemProps extends SelectItem {
 interface Props {
   serverRequest: (search: string) => Promise<any[]>;
   labelProp: string;
+  disabledProp?: string;
   matcherBy: string;
   onChange: (value: SelectItemProps[]) => void;
   options: SelectItemProps[];
@@ -42,7 +43,9 @@ const MultiSelect: FC<Partial<MultiSelectProps> & BaseFormItemProps & Props> = (
       const optionsTotal = field.value
         ? uniqBy([...response, ...field.value], props.matcherBy)
         : response;
-      setOptions(convertOptions(optionsTotal, props.labelProp));
+      setOptions(
+        convertOptions(optionsTotal, props.labelProp, props.disabledProp)
+      );
     },
     onError: () => {
       setOptions([]);
@@ -51,7 +54,9 @@ const MultiSelect: FC<Partial<MultiSelectProps> & BaseFormItemProps & Props> = (
 
   useEffect(() => {
     if (props.options) {
-      setOptions(convertOptions(props.options, props.labelProp));
+      setOptions(
+        convertOptions(props.options, props.labelProp, props.disabledProp)
+      );
     }
   }, [props.options]);
   useEffect(() => {

@@ -14,11 +14,11 @@ const Input: FC<TextInputProps & BaseFormItemProps> = (props) => {
   return (
     <TextInput
       {...props}
+      value={props.value || ''}
       withAsterisk={field.required}
       readOnly={!!props.readOnly}
       error={error && takeMessageForm(field, props.feedbackText)}
     />
   );
 };
-
 export default Input;

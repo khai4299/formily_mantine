@@ -8,4 +8,3 @@ export * from './lib/Checkbox';
 export * from './lib/Switch';
 export * from './lib/Form';
 export * from './lib/Link';
-export * from './lib/FormGrid';

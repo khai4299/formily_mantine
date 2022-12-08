@@ -11,7 +11,7 @@ export const uploadFile = async (
 ) => {
   const formData = new FormData();
 
-  formData.append('subPat', subPath);
+  formData.append('subPath', subPath);
   formData.append('file', file, keepName ? file.name : undefined);
   formData.append('keepSize', '' + !!keepSize);
   formData.append('keepName', '' + !!keepName);

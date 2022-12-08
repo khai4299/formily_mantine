@@ -1,10 +1,10 @@
 import React, { FC, useEffect, useState } from 'react';
 import { FileInput, Group, Loader, Text } from '@mantine/core';
-import { Dropzone, DropzoneProps, FileWithPath } from '@mantine/dropzone';
+import { Dropzone, DropzoneProps } from '@mantine/dropzone';
 import {
-  IconInfoCircle,
-  IconCloudUpload,
   IconCircleCheck,
+  IconCloudUpload,
+  IconInfoCircle,
 } from '@tabler/icons';
 import { StyledUpload } from './styles';
 import { useMutation } from 'react-query';
@@ -15,7 +15,7 @@ import {
 } from '@formily-mantine/cdk';
 import { FileRejection } from 'react-dropzone';
 import { useField } from '@formily/react';
-import { Field } from '@formily/core';
+import { Field, registerValidateRules } from '@formily/core';
 import { isEmpty } from 'lodash';
 
 interface FilePath {
@@ -28,63 +28,80 @@ interface Props {
   required?: boolean;
   value: Record<string, string>;
   serverRequest: (file: File) => Promise<string>;
-  onChange: ({ path, file }: FilePath) => void;
+  onChange: (file: FilePath | null) => void;
 }
 
+registerValidateRules({
+  requiredPath(value) {
+    if (!value) return '';
+    return !value.path ? 'The field value is required' : '';
+  },
+});
 const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
-  const [filePath, setFilePath] = useState<string | null>(null);
-  const [isReject, setIsReject] = useState<boolean>(false);
+  const [loadingFile, setLoadingFile] = useState<File | null>(null);
+  const [rejectFile, setRejectFile] = useState<File | null>(null);
   const error = useFieldValidate();
   const field = useField<Field>();
-
   const {
     mutate: upload,
     isLoading,
     error: errorUpload,
-  } = useMutation(props.serverRequest, {
-    onSuccess: (response) => {
-      props.onChange({ ...field.value, path: response });
-    },
-    onError: () => {
-      setIsReject(true);
-    },
-  });
-  const onUpdateSuccess = (file: File) => {
-    setIsReject(false);
-    props.onChange({ file: file.name });
-    upload(file);
+  } = useMutation(props.serverRequest);
+  useEffect(() => {
+    if (field.required) {
+      field.setValidatorRule('requiredPath', (value: FilePath) => value);
+    }
+  }, []);
+  const onUpdateSuccess = (file: File, response: string) => {
+    props.onChange({ path: response, file: file.name });
   };
-  const onUpdateReject = (file: File) => {
-    setIsReject(true);
-    props.onChange({ file: file.name });
-  };
-  const onClear = () => {
-    setIsReject(false);
-    props.onChange({ path: null });
+  const onUpdateFail = (file: File) => {
+    props.onChange({ path: null, file: file.name });
   };
   const onDrop = (fileDrops: File[]) => {
-    onUpdateSuccess(fileDrops[0]);
+    upload(fileDrops[0], {
+      onSuccess: (response) => {
+        onUpdateSuccess(fileDrops[0], response);
+      },
+      onError: () => {
+        onUpdateFail(fileDrops[0]);
+      },
+    });
   };
+  useEffect(() => {
+    if (isEmpty(field.value)) {
+      setLoadingFile(null);
+      setRejectFile(null);
+    } else {
+      setLoadingFile(
+        field.value.path ? ({ name: field.value.file } as File) : null
+      );
+      setRejectFile(
+        !field.value.path ? ({ name: field.value.file } as File) : null
+      );
+    }
+  }, [field.value]);
   const onReject = (fileRejects: FileRejection[]) => {
-    const file = fileRejects[0];
-    onUpdateReject(file.file);
+    onUpdateFail(fileRejects[0].file);
   };
   const onChange = (file: File) => {
     if (!file) {
-      onClear();
+      props.onChange(null);
     } else {
-      if (!props.accept || (props.accept as string[]).includes(file.type)) {
-        onUpdateSuccess(file);
+      if (props.accept && !(props.accept as string[]).includes(file.type)) {
+        onUpdateFail(file);
       } else {
-        onUpdateReject(file);
+        upload(file, {
+          onSuccess: (response) => {
+            onUpdateSuccess(file, response);
+          },
+          onError: () => {
+            onUpdateFail(file);
+          },
+        });
       }
     }
   };
-  useEffect(() => {
-    if (field.value) {
-      setFilePath(field.value.file);
-    }
-  }, [field.value]);
   return (
     <StyledUpload className={props.className}>
       <label className="inline-block text-sm font-medium break-all cursor-default">
@@ -92,7 +109,7 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
         {props.required && <span className="text-red-500"> *</span>}
       </label>
       <div>
-        {!filePath && (
+        {!loadingFile && !rejectFile && (
           <Dropzone
             loading={isLoading}
             className="border border-dashed border-blue-600 mb-5px p-0 "
@@ -111,21 +128,21 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
             </Group>
           </Dropzone>
         )}
-        {filePath && (
+        {(loadingFile || rejectFile) && (
           <FileInput
-            value={{ name: filePath } as File}
+            value={loadingFile || rejectFile}
             icon={
               isLoading ? (
                 <Loader size="sm" />
-              ) : isReject ? (
-                <IconInfoCircle className="text-red-600" />
-              ) : (
+              ) : loadingFile ? (
                 <IconCircleCheck className="text-green-600" />
+              ) : (
+                <IconInfoCircle className="text-red-600" />
               )
             }
             accept={props.accept?.toString()}
             error={
-              isReject && (errorUpload ? 'Update fail' : 'Wrong file type')
+              rejectFile && (errorUpload ? 'Update fail' : 'Wrong file type')
             }
             clearable={true}
             onChange={onChange}
@@ -134,7 +151,7 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
       </div>
       {error && (
         <div className="text-xs text-red-500">
-          {takeMessageForm(field, takeMessageForm(field, props.feedbackText))}
+          {takeMessageForm(field, props.feedbackText)}
         </div>
       )}
     </StyledUpload>
