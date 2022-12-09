@@ -1,5 +1,10 @@
-import React, { useMemo, useState } from 'react';
-import { RecursionField, useField, useFieldSchema } from '@formily/react';
+import React from 'react';
+import {
+  observer,
+  RecursionField,
+  useField,
+  useFieldSchema,
+} from '@formily/react';
 import { ArrayField as ArrayFieldType } from '@formily/core';
 import { ActionIcon } from '@mantine/core';
 import { IconPlus, IconX } from '@tabler/icons';
@@ -13,14 +18,11 @@ interface Props {
   onRemove?: (index: number) => void;
 }
 
-const RepeatItem = (props: Props) => {
+const RepeatItem = observer((props: Props) => {
   const fields = useField<ArrayFieldType>();
-  const [updateField, setUpdateField] = useState(false);
   const error = useFieldValidate();
   const schema = useFieldSchema();
-  const dataSource = useMemo(() => {
-    return Array.isArray(fields.value) ? fields.value : [];
-  }, [updateField]);
+  const dataSource = Array.isArray(fields.value) ? fields.value : [];
   return (
     <div className={props.className}>
       <label className="inline-block text-sm font-medium break-all cursor-default">
@@ -40,7 +42,6 @@ const RepeatItem = (props: Props) => {
                   variant="filled"
                   color="blue"
                   onClick={() => {
-                    setUpdateField((prev) => !prev);
                     fields.remove(index);
                   }}
                 >
@@ -61,7 +62,6 @@ const RepeatItem = (props: Props) => {
         variant="filled"
         color="blue"
         onClick={() => {
-          setUpdateField((prev) => !prev);
           fields.push(null);
         }}
       >
@@ -69,6 +69,6 @@ const RepeatItem = (props: Props) => {
       </ActionIcon>
     </div>
   );
-};
+});
 
 export default RepeatItem;

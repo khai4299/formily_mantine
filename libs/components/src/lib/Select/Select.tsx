@@ -4,13 +4,14 @@ import {
   SelectItem,
   SelectProps,
 } from '@mantine/core';
-import { useField } from '@formily/react';
+import { useField, useFieldSchema } from '@formily/react';
 import {
   BaseFormItemProps,
   takeMessageForm,
   useFieldValidate,
 } from '@formily-mantine/cdk';
 import { Field } from '@formily/core';
+import { useQuery } from 'react-query';
 
 interface SelectItemProps extends SelectItem {
   id: string;
@@ -22,11 +23,15 @@ interface Props {
   matcherBy: string;
   onChange: (value: SelectItemProps) => void;
   options: SelectItemProps[];
+  fetchRequest: () => Promise<any[]>;
+  queryKey: string;
 }
 
 const Select: FC<Props & BaseFormItemProps & SelectProps> = (props) => {
   const [options, setOptions] = useState<SelectItemProps[]>([]);
   const field = useField<Field>();
+  const fieldSchema = useFieldSchema();
+  console.log(fieldSchema);
   const error = useFieldValidate();
   useEffect(() => {
     if (props.options) {
@@ -44,7 +49,7 @@ const Select: FC<Props & BaseFormItemProps & SelectProps> = (props) => {
   return (
     <SelectMantine
       {...props}
-      value={field.value && field.value.id}
+      value={field.value && field.value[props.matcherBy]}
       required={field.required}
       data={options || []}
       nothingFound={'Nothing found'}
