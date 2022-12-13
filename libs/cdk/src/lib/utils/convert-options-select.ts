@@ -1,19 +1,16 @@
 import { SelectItem } from '@mantine/core';
 
-interface SelectItemProps extends SelectItem {
-  id: string;
-}
-
 export const convertOptions = (
-  options: SelectItemProps[],
+  options: SelectItem[],
+  matcherBy: string,
   labelProp: string,
   disabledProps?: string
 ) => {
   return options.map((option) => {
     return {
       ...option,
-      value: option.id,
-      label: option[labelProp],
+      value: option[matcherBy],
+      label: option[labelProp] || '',
       disabled: disabledProps ? option[disabledProps] : option.disabled,
     };
   });

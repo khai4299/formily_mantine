@@ -16,12 +16,8 @@ import {
   useFieldValidate,
 } from '@formily-mantine/cdk';
 
-interface ItemProps extends AutocompleteItem {
-  id: string;
-}
-
 interface ComboBoxProps {
-  options: ItemProps[];
+  options: AutocompleteItem[];
   labelProp: string;
   matcherBy: string;
   serverRequest: (search: string) => Promise<any[]>;
@@ -34,7 +30,7 @@ const ComboBox: FC<
     ComboBoxProps
 > = (props) => {
   const field = useField<Field>();
-  const [options, setOptions] = useState<ItemProps[]>([]);
+  const [options, setOptions] = useState<AutocompleteItem[]>([]);
   const [searchValue, setSearchValue] = useState('');
   const searchQuery = useDebounce(searchValue, 500);
   const error = useFieldValidate();
@@ -45,13 +41,13 @@ const ComboBox: FC<
 
   const { mutate } = useMutation(props.serverRequest, {
     onSuccess: (response) => {
-      setOptions(convertOptions(response, props.labelProp));
+      setOptions(convertOptions(response, props.matcherBy, props.labelProp));
     },
     onError: () => {
       setOptions([]);
     },
   });
-  const onItemSubmit = (value: ItemProps) => {
+  const onItemSubmit = (value: AutocompleteItem) => {
     props.onChange?.(value);
   };
   return (

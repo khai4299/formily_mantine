@@ -25,3 +25,14 @@ export const uploadFile = async (
   });
   return res.data;
 };
+export const getFile = async (subPath: string) => {
+  const res = await axios.get('store/file/get', {
+    params: { subPath },
+    baseURL: BASE_URL,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    responseType: 'blob',
+  });
+  return res.data;
+};

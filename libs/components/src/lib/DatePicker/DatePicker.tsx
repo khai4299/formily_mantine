@@ -18,8 +18,9 @@ const DatePicker: FC<DatePickerProps & BaseFormItemProps> = (props) => {
   return (
     <DatePickerMantine
       {...props}
-      required={field.required}
       readOnly={!!props.readOnly}
+      value={props.value ? new Date(props.value) : null}
+      required={field.required}
       error={error && takeMessageForm(field, props.feedbackText)}
     />
   );

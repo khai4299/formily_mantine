@@ -1,54 +1,88 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { FileInput, Group, Loader, Text } from '@mantine/core';
-import {
-  Dropzone,
-  DropzoneProps,
-  FileWithPath,
-  IMAGE_MIME_TYPE,
-} from '@mantine/dropzone';
-import { IconInfoCircle, IconCloudUpload, IconCheck } from '@tabler/icons';
+import { Dropzone, DropzoneProps, FileWithPath } from '@mantine/dropzone';
+import { IconCheck, IconCloudUpload, IconInfoCircle } from '@tabler/icons';
 import { StyledUpload } from './styles';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import { FileRejection } from 'react-dropzone';
+import {
+  BaseFormItemProps,
+  convertAttachmentName,
+  getFile,
+  takeMessageForm,
+  useFieldValidate,
+} from '@formily-mantine/cdk';
+import { useField } from '@formily/react';
+import { Field } from '@formily/core';
 
 interface Props {
   label: string;
   required?: boolean;
-  onChange: (subPath: Record<string, string> | null) => void;
+  onChange: (file: string | null) => void;
   value: string;
   error?: boolean;
   serverRequest: (file: File) => Promise<any>;
 }
 
-const UploadFile: FC<DropzoneProps & Props> = (props) => {
-  const [fileReject, setFileReject] = useState<FileWithPath | null>(null);
-  const [fileDrop, setFileDrop] = useState<FileWithPath | null>(null);
-  const { mutate: upload, isLoading } = useMutation(props.serverRequest, {
-    onSuccess: (response) => {
-      props.onChange({ url: response });
-    },
-  });
-  const onDrop = (fileDrops: FileWithPath[]) => {
-    const file = fileDrops[0];
-    setFileDrop(file);
-    setFileReject(null);
-    upload(file);
+const UploadFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
+  const field = useField<Field>();
+  const {
+    mutate: upload,
+    isLoading,
+    error: errorUpload,
+  } = useMutation(props.serverRequest);
+  const { mutate: getUpload } = useMutation(getFile);
+  const error = useFieldValidate();
+  useEffect(() => {
+    if (props.value && !field.data) {
+      getUpload(props.value, {
+        onSuccess: (response) => {
+          field.setData({
+            file: new File([response], convertAttachmentName(props.value)),
+            error: false,
+          });
+        },
+      });
+    }
+  }, [props.value]);
+  const onUpdateSuccess = (file: File, response: string) => {
+    field.setData({ file: file, error: false });
+    props.onChange(response);
   };
-  const onReject = (fileRejects: FileRejection[]) => {
-    const file = fileRejects[0];
-    setFileReject(file.file);
-    setFileDrop(null);
+  const onUpdateFail = (file: File) => {
+    field.setData({ file: file, error: true });
     props.onChange(null);
   };
-  const onRemove = (file: File) => {
+  const onDrop = (fileDrops: FileWithPath[]) => {
+    upload(fileDrops[0], {
+      onSuccess: (response) => {
+        onUpdateSuccess(fileDrops[0], response);
+      },
+      onError: () => {
+        onUpdateFail(fileDrops[0]);
+      },
+    });
+  };
+  const onReject = (fileRejects: FileRejection[]) => {
+    onUpdateFail(fileRejects[0].file);
+  };
+  const onChange = (file: File) => {
     if (!file) {
-      setFileReject(null);
-      setFileDrop(null);
       props.onChange(null);
+      field.setData(null);
     } else {
-      setFileDrop(file);
-      setFileReject(null);
-      upload(file);
+      if (props.accept && !(props.accept as string[]).includes(file.type)) {
+        onUpdateFail(file);
+      } else {
+        upload(file, {
+          onSuccess: (response) => {
+            onUpdateSuccess(file, response);
+          },
+          onError: () => {
+            onUpdateFail(file);
+          },
+        });
+      }
     }
   };
   return (
@@ -57,8 +91,9 @@ const UploadFile: FC<DropzoneProps & Props> = (props) => {
         {props.label}
         {props.required && <span className="text-red-500"> *</span>}
       </label>
-      {!fileReject && !fileDrop && (
+      {!field.data && (
         <Dropzone
+          loading={isLoading}
           className="border border-dashed border-blue-600 mb-5px p-2"
           accept={props.accept}
           onDrop={onDrop}
@@ -75,31 +110,37 @@ const UploadFile: FC<DropzoneProps & Props> = (props) => {
           </Group>
         </Dropzone>
       )}
-      {(fileDrop || fileReject) && (
+      {field.data && (
         <FileInput
-          value={fileDrop ? fileDrop : fileReject}
+          value={field.data.file}
+          accept={props.accept?.toString()}
           icon={
             isLoading ? (
               <Loader size="sm" />
-            ) : fileDrop ? (
-              <IconCheck className="text-green-600" />
-            ) : (
+            ) : field.data.error ? (
               <IconInfoCircle className="text-red-600" />
+            ) : (
+              <IconCheck className="text-green-600" />
             )
           }
-          error={fileReject && 'Wrong file type'}
+          error={
+            field.data.error &&
+            (errorUpload ? 'Update fail' : 'Wrong file type')
+          }
           clearable={true}
-          onChange={onRemove}
+          onChange={onChange}
         />
       )}
-      {props.error && (
-        <div className="text-xs text-red-500">The field is not blank</div>
+      {error && (
+        <div className="text-xs text-red-500">
+          {takeMessageForm(field, props.feedbackText)}
+        </div>
       )}
-      {props.value && fileDrop && (
+      {props.value && field.data && (
         <div>
           <img
             className="object-contain w-full h-36 mx-auto mt-4"
-            src={URL.createObjectURL(fileDrop)}
+            src={URL.createObjectURL(field.data.file)}
             alt=""
           />
         </div>

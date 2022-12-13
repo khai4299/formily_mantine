@@ -46,7 +46,7 @@ const SimpleForm = () => {
   };
   useEffect(() => {
     if (data) {
-      form.setInitialValues({ ...data.data, status: data.data.status === 2 });
+      form.setInitialValues({ ...data, status: data.status === 2 });
     }
   }, [data]);
   const onSubmit = (formData: any) => {

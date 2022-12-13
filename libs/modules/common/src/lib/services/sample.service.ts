@@ -3,6 +3,7 @@ import { BaseReponse, PagingResponse } from '@formily-mantine/cdk';
 import {
   Customer,
   Employee,
+  EmployeeManagement,
   Level,
   Office,
   Org,
@@ -25,7 +26,7 @@ export const getSkill = async () => {
       },
     }
   );
-  return res.data;
+  return res.data ? res.data.data : null;
 };
 
 export const getSites = async () => {
@@ -37,7 +38,7 @@ export const getSites = async () => {
       },
     }
   );
-  return res.data;
+  return res.data ? res.data.data.items : [];
 };
 export const getOrgs = async () => {
   const res = await axios.get<PagingResponse<Org>>(
@@ -48,7 +49,7 @@ export const getOrgs = async () => {
       },
     }
   );
-  return res.data;
+  return res.data ? res.data.data.items : [];
 };
 export const getTitles = async () => {
   const res = await axios.get<Title[]>(
@@ -59,7 +60,7 @@ export const getTitles = async () => {
       },
     }
   );
-  return res.data;
+  return res.data || null;
 };
 export const getLevels = async () => {
   const res = await axios.get<PagingResponse<Level>>(
@@ -70,7 +71,7 @@ export const getLevels = async () => {
       },
     }
   );
-  return res.data;
+  return res.data ? res.data.data.items : [];
 };
 export const getRoles = async () => {
   const res = await axios.get<PagingResponse<Role>>(
@@ -81,7 +82,7 @@ export const getRoles = async () => {
       },
     }
   );
-  return res.data;
+  return res.data ? res.data.data.items : [];
 };
 export const getStaff = async () => {
   const res = await axios.get<Staff[]>(
@@ -92,7 +93,7 @@ export const getStaff = async () => {
       },
     }
   );
-  return res.data;
+  return res.data || null;
 };
 export const getCustomer = async () => {
   const res = await axios.get<Customer[]>(
@@ -103,7 +104,7 @@ export const getCustomer = async () => {
       },
     }
   );
-  return res.data;
+  return res.data || null;
 };
 export const getOffices = async () => {
   const res = await axios.get<PagingResponse<Office>>(
@@ -114,7 +115,7 @@ export const getOffices = async () => {
       },
     }
   );
-  return res.data;
+  return res.data ? res.data.data.items : [];
 };
 export const getEmployee = async () => {
   const res = await axios.get<BaseReponse<Employee>>(
@@ -126,12 +127,24 @@ export const getEmployee = async () => {
       },
     }
   );
-  return res.data;
+  return res.data ? res.data.data : null;
 };
 export const updateSkill = async (payload: Record<string, unknown>) => {
   const res = await axios.put(
     process.env['NX_API_GATEWAY_URL'] +
       `/projects/skills/${payload['skill_id']}`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return res.data;
+};
+export const postEmployee = async (payload: Record<string, unknown>) => {
+  const res = await axios.post(
+    process.env['NX_API_ACCOUNT_URL'] + `/employees`,
     payload,
     {
       headers: {

@@ -1,5 +1,10 @@
 import React, { MouseEvent } from 'react';
-import { createSchemaField, FormProvider, observer } from '@formily/react';
+import {
+  createSchemaField,
+  FormProvider,
+  observer,
+  RecursionField,
+} from '@formily/react';
 import { Form as FormType } from '@formily/core';
 import { Checkbox } from '../Checkbox';
 import { MultiSelect, Select } from '../Select';
@@ -17,18 +22,22 @@ import { RepeatItem } from '../RepeatItem';
 import { Switch } from '../Switch';
 import { DatePicker, DateRangePicker } from '../DatePicker';
 import { ISchema } from '@formily/json-schema';
-import { Button, LoadingOverlay } from '@mantine/core';
+import { Button, Grid, LoadingOverlay } from '@mantine/core';
 import ValidatorText from './ValidatorText';
 import './styles.scss';
+import { Collapse } from '../Collapse';
+
+const { Col } = Grid;
 
 interface ISchemaCustom extends ISchema {
   className?: string;
+  grid?: boolean;
 }
 
 interface Props {
   form: FormType;
   schema: ISchemaCustom;
-  onSubmit: (data: unknown) => void;
+  onSubmit: (data: Record<string, unknown>) => void;
   onCancel?: () => void;
   hideCancelButton?: boolean;
   isLoading?: boolean;
@@ -54,6 +63,9 @@ const SchemaField = createSchemaField({
     Checkbox,
     Switch,
     ValidatorText,
+    Grid,
+    Col,
+    Collapse,
   },
 });
 const Form = observer(
@@ -69,11 +81,18 @@ const Form = observer(
     return (
       <div className="relative">
         <LoadingOverlay visible={!!isFetching} overlayBlur={0.5} />
-        <div className={schema.className}>
-          <FormProvider form={form}>
-            <SchemaField schema={schema} />
-          </FormProvider>
-        </div>
+        <FormProvider form={form}>
+          {schema.grid && (
+            <Grid className={schema.className}>
+              <SchemaField schema={schema} />
+            </Grid>
+          )}
+          {!schema.grid && (
+            <div className={schema.className}>
+              <SchemaField schema={schema} />
+            </div>
+          )}
+        </FormProvider>
         <div className="flex mt-8 justify-center">
           <Button
             loading={isLoading}

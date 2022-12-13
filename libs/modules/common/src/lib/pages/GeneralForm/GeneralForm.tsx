@@ -1,9 +1,17 @@
 import React, { useEffect } from 'react';
-import { Form, Select } from '@formily-mantine/components';
-import { createForm } from '@formily/core';
+import { Form } from '@formily-mantine/components';
+import { createForm, Field, onFieldReact } from '@formily/core';
+import { isField } from '@formily/core';
+
 import { IMAGE_MIME_TYPE } from '@mantine/dropzone';
-import { uploadFile } from '@formily-mantine/cdk';
-import { useQuery } from 'react-query';
+import {
+  getDateDifference,
+  showNotification,
+  uploadFile,
+} from '@formily-mantine/cdk';
+import { observable } from '@formily/reactive';
+
+import { useMutation, useQuery } from 'react-query';
 import {
   getCustomer,
   getEmployee,
@@ -14,317 +22,392 @@ import {
   getSites,
   getStaff,
   getTitles,
+  postEmployee,
 } from '../../services';
-import { uniqBy } from 'lodash';
-import { MultiSelect } from '@mantine/core';
-import { Field, FormProvider } from '@formily/react';
 
-const form = createForm();
+const form = createForm({
+  effects() {
+    onFieldReact('jobTitleVietnamese', (field) => {
+      if (isField(field)) {
+        field.setValue(field.query('jobTitle').get('value'));
+      }
+    });
+    onFieldReact('jobTitle', (field) => {
+      if (isField(field)) {
+        field.setValue(field.query('jobTitleVietnamese').get('value'));
+      }
+    });
+    onFieldReact('lastWorkingDate', (field) => {
+      field.componentProps['minDate'] = field
+        .query('seniorityDate')
+        .get('value')
+        ? new Date(field.query('seniorityDate').get('value'))
+        : new Date();
+    });
+    onFieldReact('seniorityDate', (field) => {
+      field.componentProps['maxDate'] = field
+        .query('lastWorkingDate')
+        .get('value')
+        ? new Date(field.query('lastWorkingDate').get('value'))
+        : new Date();
+    });
+    onFieldReact('vCode', (field) => {
+      if (isField(field)) {
+        field.setValue(
+          field.query('cif').get('value') +
+            ' ' +
+            field.query('lastName').get('value') +
+            ' ' +
+            field.query('firstName').get('value')
+        );
+      }
+    });
+    onFieldReact('bvTime', (field) => {
+      const startDate = field.query('seniorityDate').get('value')
+        ? new Date(field.query('seniorityDate').get('value'))
+        : new Date();
+      const endDate = field.query('status').get('value')
+        ? new Date()
+        : field.query('lastWorkingDate').get('value')
+        ? new Date(field.query('lastWorkingDate').get('value'))
+        : field.query('seniorityDate').get('value')
+        ? new Date(field.query('seniorityDate').get('value'))
+        : new Date();
+      const { years, months, days } = getDateDifference(startDate, endDate);
+      if (isField(field)) {
+        field.setValue(
+          years + ' year(s), ' + months + ' month(s), ' + days + ' day(s)'
+        );
+      }
+    });
+  },
+});
+
 const GeneralForm = () => {
   const { data: dataEmployee, isFetching: isFetchingEmployee } = useQuery(
     'employee',
     getEmployee
   );
-  const { data: dataSites, isFetching: isFetchingSites } = useQuery(
-    'sites',
-    getSites
-  );
-  const { data: dataCustomers, isFetching: isFetchingCustomers } = useQuery(
-    'customers',
-    getCustomer
-  );
-  const { data: dataOrgs, isFetching: isFetchingOrgs } = useQuery(
-    'orgs',
-    getOrgs
-  );
-  const { data: dataTitles, isFetching: isFetchingTitles } = useQuery(
-    'titles',
-    getTitles
-  );
-  const { data: dataOffices, isFetching: isFetchingOffices } = useQuery(
-    'offices',
-    getOffices
-  );
-  const { data: dataLevels, isFetching: isFetchingLevels } = useQuery(
-    'levels',
-    getLevels
-  );
-  const { data: dataStaffs, isFetching: isFetchingStaffs } = useQuery(
-    'staffs',
-    getStaff
-  );
-  const { data: dataRoles, isFetching: isFetchingRoles } = useQuery(
-    'roles',
-    getRoles
-  );
+  const { mutate, isLoading } = useMutation(postEmployee);
 
-  const isFetching =
-    isFetchingOffices ||
-    isFetchingEmployee ||
-    isFetchingStaffs ||
-    isFetchingRoles ||
-    isFetchingLevels ||
-    isFetchingOrgs ||
-    isFetchingSites ||
-    isFetchingCustomers ||
-    isFetchingTitles;
-  useEffect(() => {
-    if (dataEmployee) {
-      form.setInitialValues({ ...dataEmployee.data });
-    }
-  }, [dataEmployee]);
   const schema = {
-    className: 'grid grid-cols-12 gap-4',
+    grid: true,
     properties: {
-      // status: {
-      //   'x-component': 'Switch',
-      //   required: true,
-      //   'x-component-props': {
-      //     label: 'Status',
-      //     onLabel: 'Active',
-      //     offLabel: 'Inactive',
-      //     className: 'form-row col-span-2',
-      //   },
-      // },
-      // cif: {
-      //   'x-component': 'Input',
-      //   'x-component-props': {
-      //     label: 'CIF Number',
-      //     placeholder: 'Enter cif...',
-      //     className: 'col-span-2',
-      //   },
-      // },
-      // vCode: {
-      //   'x-component': 'Input',
-      //   'x-component-props': {
-      //     label: 'Vcode',
-      //     disabled: true,
-      //     placeholder: 'Enter vcode...',
-      //     className: 'col-span-4',
-      //   },
-      // },
+      status: {
+        'x-component': 'Switch',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 2,
+        },
+        required: true,
+        'x-component-props': {
+          label: 'Status',
+          onLabel: 'Active',
+          offLabel: 'Inactive',
+          className: 'form-row',
+        },
+      },
+      cif: {
+        'x-component': 'Input',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 2,
+        },
+        'x-component-props': {
+          label: 'CIF Number',
+          placeholder: 'Enter cif...',
+        },
+      },
+      vCode: {
+        'x-component': 'Input',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 4,
+        },
+        'x-component-props': {
+          label: 'Vcode',
+          disabled: true,
+          placeholder: 'Enter vcode...',
+        },
+      },
       site: {
         'x-component': 'Select',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 2,
+        },
         'x-component-props': {
           label: 'Site',
           placeholder: 'Enter site...',
-          className: 'col-span-2',
           labelProp: 'name',
           matcherBy: 'id',
-          options: dataSites?.data.items,
+          fetchRequest: getSites,
         },
       },
-      // firstName: {
-      //   'x-component': 'Input',
-      //   required: true,
-      //   'x-component-props': {
-      //     label: 'First Name',
-      //     placeholder: 'Enter first name...',
-      //     className: 'col-span-4',
-      //   },
-      // },
-      // lastName: {
-      //   'x-component': 'Input',
-      //   required: true,
-      //   'x-component-props': {
-      //     label: 'Last Name',
-      //     placeholder: 'Enter last name...',
-      //     className: 'col-span-4',
-      //   },
-      // },
-      // fullNameInVietnamese: {
-      //   'x-component': 'Input',
-      //   required: true,
-      //   'x-component-props': {
-      //     label: 'Vietnamese full name',
-      //     placeholder: 'Enter vietnamese full name...',
-      //     className: 'col-span-4',
-      //   },
-      // },
-      // organization: {
-      //   'x-component': 'Select',
-      //   required: true,
-      //   'x-component-props': {
-      //     label: 'Department',
-      //     placeholder: 'Enter department...',
-      //     className: 'col-span-2',
-      //     options: dataOrgs?.data.items,
-      //     labelProp: 'name',
-      //     matcherBy: 'id',
-      //   },
-      // },
-      // section: {
-      //   'x-component': 'Input',
-      //   required: true,
-      //   'x-component-props': {
-      //     label: 'Team/Section',
-      //     placeholder: 'Enter team/section...',
-      //     className: 'col-span-2',
-      //   },
-      // },
-      // sector: {
-      //   'x-component': 'Input',
-      //   'x-component-props': {
-      //     label: 'Sector',
-      //     placeholder: 'Enter sector...',
-      //     className: 'col-span-4',
-      //   },
-      // },
-      // costCenter: {
-      //   'x-component': 'Input',
-      //   'x-component-props': {
-      //     label: 'Cost center',
-      //     placeholder: 'Enter cost center...',
-      //     className: 'col-span-4',
-      //   },
-      // },
-      // jobTitle: {
-      //   'x-component': 'Select',
-      //   required: true,
-      //   'x-component-props': {
-      //     label: 'English job title',
-      //     placeholder: 'Enter job title...',
-      //     className: 'col-span-6',
-      //     options: dataTitles,
-      //     labelProp: 'name',
-      //     matcherBy: 'id',
-      //   },
-      // },
-      // jobTitleVietnamese: {
-      //   'x-component': 'Select',
-      //   required: true,
-      //   'x-component-props': {
-      //     label: 'Vietnamese job title',
-      //     placeholder: 'Enter vietnamese job title...',
-      //     className: 'col-span-6',
-      //     options: dataTitles,
-      //     labelProp: 'vietnameseName',
-      //     matcherBy: 'id',
-      //   },
-      // },
-      // office: {
-      //   'x-component': 'Select',
-      //   required: true,
-      //   'x-component-props': {
-      //     label: 'Working place',
-      //     placeholder: 'Enter working place...',
-      //     className: 'col-span-6',
-      //     options: dataOffices?.data.items,
-      //     labelProp: 'name',
-      //     matcherBy: 'id',
-      //   },
-      // },
-      // customer: {
-      //   'x-component': 'Select',
-      //   'x-component-props': {
-      //     label: 'Account customer',
-      //     clearable: true,
-      //     placeholder: 'Enter account customer...',
-      //     className: 'col-span-6',
-      //     options: dataCustomers,
-      //     labelProp: 'name',
-      //     matcherBy: 'id',
-      //   },
-      // },
-      // jobLevel: {
-      //   'x-component': 'Select',
-      //   'x-component-props': {
-      //     label: 'RCS',
-      //     clearable: true,
-      //     placeholder: 'Enter rsc...',
-      //     className: 'col-span-6',
-      //     options: dataLevels?.data.items,
-      //     labelProp: 'name',
-      //     matcherBy: 'id',
-      //   },
-      // },
-      // staffCategory: {
-      //   'x-component': 'Select',
-      //   required: true,
-      //   'x-component-props': {
-      //     label: 'Staff category',
-      //     placeholder: 'Enter staff category...',
-      //     className: 'col-span-6',
-      //     options: dataStaffs,
-      //     labelProp: 'name',
-      //     matcherBy: 'id',
-      //   },
-      // },
-      // seniorityDate: {
-      //   'x-component': 'DatePicker',
-      //   'x-component-props': {
-      //     label: 'Seniority date',
-      //     placeholder: 'Enter seniority date...',
-      //     className: 'col-span-3',
-      //   },
-      // },
-      // bvTime: {
-      //   'x-component': 'Input',
-      //   'x-component-props': {
-      //     label: 'BV time',
-      //     placeholder: 'Enter bv time...',
-      //     className: 'col-span-3',
-      //   },
-      // },
-      // onboardingDate: {
-      //   'x-component': 'DatePicker',
-      //   required: true,
-      //   'x-component-props': {
-      //     label: 'Onboarding date',
-      //     placeholder: 'Enter onboarding date...',
-      //     className: 'col-span-3',
-      //   },
-      // },
-      // lastWorkingDate: {
-      //   'x-component': 'DatePicker',
-      //   'x-component-props': {
-      //     label: 'Last Working Day',
-      //     placeholder: 'Enter last working date...',
-      //     className: 'col-span-3',
-      //   },
-      // },
+      firstName: {
+        'x-component': 'Input',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 4,
+        },
+        required: true,
+        'x-component-props': {
+          label: 'First Name',
+          placeholder: 'Enter first name...',
+        },
+      },
+      lastName: {
+        'x-component': 'Input',
+        required: true,
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 4,
+        },
+        'x-component-props': {
+          label: 'Last Name',
+          placeholder: 'Enter last name...',
+        },
+      },
+      fullNameInVietnamese: {
+        'x-component': 'Input',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 4,
+        },
+        required: true,
+        'x-component-props': {
+          label: 'Vietnamese full name',
+          placeholder: 'Enter vietnamese full name...',
+        },
+      },
+      organization: {
+        'x-component': 'Select',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 2,
+        },
+        required: true,
+        'x-component-props': {
+          label: 'Department',
+          placeholder: 'Enter department...',
+          fetchRequest: getOrgs,
+          labelProp: 'name',
+          matcherBy: 'id',
+        },
+      },
+      teamOrSection: {
+        'x-component': 'Input',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 2,
+        },
+        required: true,
+        'x-component-props': {
+          label: 'Team/Section',
+          placeholder: 'Enter team/section...',
+          className: 'col-span-2',
+        },
+      },
+      sector: {
+        'x-component': 'Input',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 4,
+        },
+        'x-component-props': {
+          label: 'Sector',
+          placeholder: 'Enter sector...',
+        },
+      },
+      costCenter: {
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 4,
+        },
+        'x-component': 'Input',
+        'x-component-props': {
+          label: 'Cost center',
+          placeholder: 'Enter cost center...',
+        },
+      },
+      jobTitle: {
+        'x-component': 'Select',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 6,
+        },
+        required: true,
+        'x-component-props': {
+          label: 'English job title',
+          placeholder: 'Enter job title...',
+          fetchRequest: getTitles,
+          labelProp: 'name',
+          matcherBy: 'id',
+        },
+      },
+      jobTitleVietnamese: {
+        'x-component': 'Select',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 6,
+        },
+        required: true,
+        'x-component-props': {
+          label: 'Vietnamese job title',
+          placeholder: 'Enter vietnamese job title...',
+          fetchRequest: getTitles,
+          labelProp: 'vietnameseName',
+          matcherBy: 'id',
+        },
+      },
+      office: {
+        'x-component': 'Select',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 6,
+        },
+        required: true,
+        'x-component-props': {
+          label: 'Working place',
+          placeholder: 'Enter working place...',
+          fetchRequest: getOffices,
+          labelProp: 'name',
+          matcherBy: 'id',
+        },
+      },
+      customer: {
+        'x-component': 'Select',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 6,
+        },
+        'x-component-props': {
+          label: 'Account customer',
+          clearable: true,
+          placeholder: 'Enter account customer...',
+          fetchRequest: getCustomer,
+          labelProp: 'name',
+          matcherBy: 'id',
+        },
+      },
+      jobLevel: {
+        'x-component': 'Select',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 6,
+        },
+        'x-component-props': {
+          label: 'RCS',
+          clearable: true,
+          placeholder: 'Enter rsc...',
+          fetchRequest: getLevels,
+          labelProp: 'name',
+          matcherBy: 'id',
+        },
+      },
+      staffCategory: {
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 6,
+        },
+        'x-component': 'Select',
+        required: true,
+        'x-component-props': {
+          label: 'Staff category',
+          placeholder: 'Enter staff category...',
+          fetchRequest: getStaff,
+          labelProp: 'name',
+          matcherBy: 'id',
+        },
+      },
+      seniorityDate: {
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 3,
+        },
+        'x-component': 'DatePicker',
+        'x-component-props': {
+          label: 'Seniority date',
+          placeholder: 'Enter seniority date...',
+        },
+      },
+      bvTime: {
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 3,
+        },
+        'x-component': 'Input',
+        'x-component-props': {
+          label: 'BV time',
+          placeholder: 'Enter bv time...',
+        },
+      },
+      onboardingDate: {
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 3,
+        },
+        'x-component': 'DatePicker',
+        required: true,
+        'x-component-props': {
+          label: 'Onboarding date',
+          placeholder: 'Enter onboarding date...',
+        },
+      },
+      lastWorkingDate: {
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 3,
+        },
+        'x-component': 'DatePicker',
+        'x-component-props': {
+          label: 'Last Working Day',
+          placeholder: 'Enter last working date...',
+        },
+      },
       roles: {
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 6,
+        },
         'x-component': 'MultiSelect',
         'x-component-props': {
           required: true,
           label: 'Roles',
           placeholder: 'Enter roles...',
-          className: 'col-span-6',
-          options: uniqBy(
-            [
-              ...(dataEmployee?.data.roles || []),
-              ...(dataRoles?.data.items || []),
-            ],
-            'id'
-          ),
+          fetchRequest: getRoles,
           labelProp: 'name',
           disabledProp: 'isDisable',
           matcherBy: 'id',
         },
       },
-      // image: {
-      //   'x-component': 'UploadFile',
-      //   'x-component-props': {
-      //     label: 'Avatar',
-      //     className: 'col-span-6',
-      //     accept: IMAGE_MIME_TYPE,
-      //     serverRequest: (file: File) =>
-      //       uploadFile('employee', file, true, false),
-      //   },
-      // },
+      image: {
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 6,
+        },
+        'x-component': 'UploadFile',
+        'x-component-props': {
+          label: 'Avatar',
+          serverRequest: (file: File) =>
+            uploadFile('employee', file, false, true),
+        },
+      },
       attachment: {
         type: 'array',
+        'x-decorator': 'Col',
+        'x-decorator-props': {
+          span: 12,
+        },
         'x-component': 'RepeatItem',
         'x-component-props': {
           label: 'Attachments',
-          className: 'col-span-12',
           classNameGroup: 'grid grid-cols-3 gap-4',
         },
         items: {
           type: 'void',
           properties: {
             file: {
-              required: true,
               'x-component': 'SharingFile',
               'x-component-props': {
                 className: 'form-row',
@@ -338,14 +421,43 @@ const GeneralForm = () => {
       },
     },
   };
-  const onSubmit = (formData: any) => {
-    console.log(formData);
+  useEffect(() => {
+    if (dataEmployee) {
+      form.setInitialValues({
+        ...dataEmployee,
+        status: dataEmployee.status === 1,
+      });
+    }
+  }, [dataEmployee, form]);
+  const onSubmit = (formData: Record<string, unknown>) => {
+    const payload = {
+      ...formData,
+      status: formData['status'] ? 1 : -1,
+      attachment: ((formData['attachment'] || []) as (string | null)[]).filter(
+        (item) => item
+      ),
+    };
+    mutate(payload, {
+      onSuccess: () => {
+        showNotification({
+          type: 'success',
+          message: 'Edit employee successfully',
+        });
+      },
+      onError: ({ response }: any) => {
+        showNotification({
+          type: 'error',
+          message: response.data.message,
+        });
+      },
+    });
   };
   return (
     <Form
       form={form}
       schema={schema}
-      isFetching={isFetching}
+      isFetching={isFetchingEmployee}
+      isLoading={isLoading}
       onSubmit={onSubmit}
     />
   );

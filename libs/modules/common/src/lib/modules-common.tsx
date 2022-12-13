@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { SimpleForm } from './pages/SimpleForm';
-import { GeneralForm } from './pages';
+import { GeneralForm, SimpleForm, ManagementForm } from './pages';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,7 +17,7 @@ export function ModulesCommon() {
         <Route path="*" element={<Navigate to={'simple-form'} />} />
         <Route path="simple-form" element={<SimpleForm />} />
         <Route path="general-form" element={<GeneralForm />} />
-        <Route path="array-form" element={<GeneralForm />} />
+        <Route path="management-form" element={<ManagementForm />} />
       </Routes>
     </QueryClientProvider>
   );

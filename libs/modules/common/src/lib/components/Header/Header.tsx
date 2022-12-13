@@ -22,7 +22,7 @@ const Header = () => {
       label: 'General Form',
     },
     {
-      href: 'array-form',
+      href: 'management-form',
       label: 'Array Form',
     },
   ];

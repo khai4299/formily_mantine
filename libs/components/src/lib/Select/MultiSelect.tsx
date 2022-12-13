@@ -13,20 +13,18 @@ import {
   useDebounce,
   useFieldValidate,
 } from '@formily-mantine/cdk';
-import { useMutation } from 'react-query';
+import { useMutation, useQuery } from 'react-query';
 import { uniqBy } from 'lodash';
-
-interface SelectItemProps extends SelectItem {
-  id: string;
-}
 
 interface Props {
   serverRequest: (search: string) => Promise<any[]>;
   labelProp: string;
   disabledProp?: string;
   matcherBy: string;
-  onChange: (value: SelectItemProps[]) => void;
-  options: SelectItemProps[];
+  onChange: (value: SelectItem[]) => void;
+  options: SelectItem[];
+  fetchRequest: () => Promise<any[]>;
+  keyFetch: string;
 }
 
 const MultiSelect: FC<Partial<MultiSelectProps> & BaseFormItemProps & Props> = (
@@ -34,17 +32,25 @@ const MultiSelect: FC<Partial<MultiSelectProps> & BaseFormItemProps & Props> = (
 ) => {
   const field = useField<Field>();
   const error = useFieldValidate();
-  const [options, setOptions] = useState<SelectItemProps[]>([]);
+  const [options, setOptions] = useState<SelectItem[]>([]);
   const [searchValue, setSearchValue] = useState('');
   const searchQuery = useDebounce(searchValue, 500);
-
+  const { data: dataFetch } = useQuery(
+    field.props.name.toString(),
+    props.fetchRequest
+  );
   const { mutate } = useMutation(props.serverRequest, {
     onSuccess: (response) => {
       const optionsTotal = field.value
         ? uniqBy([...response, ...field.value], props.matcherBy)
         : response;
       setOptions(
-        convertOptions(optionsTotal, props.labelProp, props.disabledProp)
+        convertOptions(
+          optionsTotal,
+          props.matcherBy,
+          props.labelProp,
+          props.disabledProp
+        )
       );
     },
     onError: () => {
@@ -53,12 +59,16 @@ const MultiSelect: FC<Partial<MultiSelectProps> & BaseFormItemProps & Props> = (
   });
 
   useEffect(() => {
-    if (props.options) {
+    if (dataFetch) {
       setOptions(
-        convertOptions(props.options, props.labelProp, props.disabledProp)
+        convertOptions(
+          dataFetch as SelectItem[],
+          props.matcherBy,
+          props.labelProp
+        )
       );
     }
-  }, [props.options]);
+  }, [dataFetch]);
   useEffect(() => {
     if (searchQuery) {
       mutate(searchValue);
@@ -69,7 +79,7 @@ const MultiSelect: FC<Partial<MultiSelectProps> & BaseFormItemProps & Props> = (
     const items = values.map((value) => {
       return (
         options.find((option) => option[props.matcherBy] === value) ||
-        ({} as SelectItemProps)
+        ({} as SelectItem)
       );
     });
     props.onChange?.(items);
@@ -79,7 +89,8 @@ const MultiSelect: FC<Partial<MultiSelectProps> & BaseFormItemProps & Props> = (
       {...props}
       required={field.required}
       value={
-        field.value && field.value.map((value: any) => value[props.matcherBy])
+        field.value &&
+        field.value.map((value: SelectItem) => value[props.matcherBy])
       }
       data={options || []}
       limit={options.length}

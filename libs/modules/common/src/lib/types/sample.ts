@@ -150,3 +150,41 @@ export interface DirectReport {
   username: any;
   tenantId: any;
 }
+
+export interface EmployeeManagement {
+  id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  syncLDAPDirectReport: boolean;
+  isDeletable: boolean;
+  userMultipleReportMethod: UserMultipleReportMethod[];
+  isSkipCheckInOutNormal: boolean;
+  reportTo: ReportTo;
+  fullNameInVietnamese: string;
+  attachment: string[];
+}
+
+export interface UserMultipleReportMethod {
+  method: Method;
+  userReports: UserReport[];
+}
+
+export interface Method {
+  createdDate: number;
+  createdBy: string;
+  lastModifiedDate: number;
+  lastModifiedBy: string;
+  optCounter: number;
+  id: string;
+  name: string;
+  tenantId: string;
+  code: string;
+}
+
+export interface UserReport {
+  id: string;
+  name: string;
+  username: string;
+  cif: any;
+}
