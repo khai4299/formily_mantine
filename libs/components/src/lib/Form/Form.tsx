@@ -1,10 +1,5 @@
 import React, { MouseEvent } from 'react';
-import {
-  createSchemaField,
-  FormProvider,
-  observer,
-  RecursionField,
-} from '@formily/react';
+import { createSchemaField, FormProvider, observer } from '@formily/react';
 import { Form as FormType } from '@formily/core';
 import { Checkbox } from '../Checkbox';
 import { MultiSelect, Select } from '../Select';
@@ -22,10 +17,11 @@ import { RepeatItem } from '../RepeatItem';
 import { Switch } from '../Switch';
 import { DatePicker, DateRangePicker } from '../DatePicker';
 import { ISchema } from '@formily/json-schema';
-import { Button, Grid, LoadingOverlay } from '@mantine/core';
+import { Button, Grid, SimpleGrid, LoadingOverlay } from '@mantine/core';
 import ValidatorText from './ValidatorText';
 import './styles.scss';
 import { Collapse } from '../Collapse';
+import { Container } from '../Container';
 
 const { Col } = Grid;
 
@@ -64,8 +60,10 @@ const SchemaField = createSchemaField({
     Switch,
     ValidatorText,
     Grid,
+    SimpleGrid,
     Col,
     Collapse,
+    Container,
   },
 });
 const Form = observer(

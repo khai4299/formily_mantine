@@ -9,10 +9,10 @@ import {
 } from '@formily-mantine/cdk';
 
 interface Props {
-  onChange?: (checked: boolean) => void;
+  onChange: (checked: boolean) => void;
 }
 
-const Checkbox: FC<CheckboxProps & BaseFormItemProps & Props> = (props) => {
+const Checkbox: FC<Props & CheckboxProps & BaseFormItemProps> = (props) => {
   const field = useField<Field>();
   const error = useFieldValidate();
   return (
@@ -21,7 +21,7 @@ const Checkbox: FC<CheckboxProps & BaseFormItemProps & Props> = (props) => {
       label={<span className="font-semibold">{props.label}</span>}
       checked={!!field.value}
       onChange={(event) => {
-        props.onChange?.(event.currentTarget.checked);
+        props.onChange(event.currentTarget.checked);
       }}
       required={field.required}
       readOnly={!!props.readOnly}

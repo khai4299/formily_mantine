@@ -1,5 +1,4 @@
 import React from 'react';
-import { useQuery } from 'react-query';
 import { Form } from '@formily-mantine/components';
 import { createForm } from '@formily/core';
 
@@ -7,27 +6,55 @@ const form = createForm();
 const CheckboxForm = () => {
   const schema = {
     properties: {
-      general: {
+      layout: {
         type: 'void',
-        title: 'Name',
-        'x-decorator': 'Collapse',
+        'x-decorator': 'Container',
+        'x-decorator-props': {
+          className: 'relative max-w-full',
+        },
         properties: {
-          firstName: {
-            required: true,
-            'x-component': 'Input',
+          general: {
+            'x-component': 'Checkbox',
             'x-component-props': {
-              placeholder: 'firstName',
+              label: 'General Information',
+            },
+            'x-reactions': {
+              target: 'firstName',
+              fulfill: {
+                state: {
+                  value: '{{!!$self.value}}',
+                },
+              },
             },
           },
-          lastName: {
-            required: true,
-            'x-component': 'Input',
+          collapse: {
+            type: 'void',
+            'x-decorator': 'Collapse',
+            properties: {
+              grid: {
+                type: 'void',
+                'x-decorator': 'SimpleGrid',
+                'x-decorator-props': {
+                  cols: 5,
+                  className: 'mt-2',
+                },
+                properties: {
+                  firstName: {
+                    'x-component': 'Checkbox',
+                  },
+                  lastName: {
+                    'x-component': 'Checkbox',
+                  },
+                },
+              },
+            },
           },
         },
       },
     },
   };
   const onSubmit = (data: Record<string, unknown>) => {};
+  console.log(form.getValuesIn('general'));
   return <Form form={form} schema={schema} onSubmit={onSubmit} />;
 };
 
