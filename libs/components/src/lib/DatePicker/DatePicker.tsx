@@ -15,6 +15,7 @@ import { Field } from '@formily/core';
 const DatePicker: FC<DatePickerProps & BaseFormItemProps> = (props) => {
   const field = useField<Field>();
   const error = useFieldValidate();
+  console.log(field);
   return (
     <DatePickerMantine
       {...props}

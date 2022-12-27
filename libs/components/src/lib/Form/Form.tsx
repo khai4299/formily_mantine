@@ -1,38 +1,13 @@
 import React, { MouseEvent } from 'react';
-import { createSchemaField, FormProvider, observer } from '@formily/react';
-import { Form as FormType } from '@formily/core';
-import { Checkbox } from '../Checkbox';
-import { MultiSelect, Select } from '../Select';
-import { ComboBox } from '../ComboBox';
-import {
-  ColorInput,
-  Input,
-  NumberInput,
-  PasswordInput,
-  Textarea,
-  TimeInput,
-} from '../Input';
-import { SharingFile, UploadFile } from '../Files';
-import { RepeatItem } from '../RepeatItem';
-import { Switch } from '../Switch';
-import { DatePicker, DateRangePicker } from '../DatePicker';
-import { ISchema } from '@formily/json-schema';
-import { Button, Grid, SimpleGrid, LoadingOverlay } from '@mantine/core';
-import ValidatorText from './ValidatorText';
-import './styles.scss';
-import { Collapse } from '../Collapse';
-import { Container } from '../Container';
-
-const { Col } = Grid;
-
-interface ISchemaCustom extends ISchema {
-  className?: string;
-  grid?: boolean;
-}
+import { FormProvider, ISchema, observer } from '@formily/react';
+import { Form as FormType, registerValidateRules } from '@formily/core';
+import { Button, LoadingOverlay } from '@mantine/core';
+import { SchemaField } from './SchemaField';
+import { FileUpload } from '@formily-mantine/cdk';
 
 interface Props {
   form: FormType;
-  schema: ISchemaCustom;
+  schema: ISchema;
   onSubmit: (data: Record<string, unknown>) => void;
   onCancel?: () => void;
   hideCancelButton?: boolean;
@@ -40,30 +15,10 @@ interface Props {
   isFetching?: boolean;
 }
 
-const SchemaField = createSchemaField({
-  components: {
-    Select,
-    ComboBox,
-    Input,
-    NumberInput,
-    TimeInput,
-    PasswordInput,
-    ColorInput,
-    Textarea,
-    UploadFile,
-    SharingFile,
-    RepeatItem,
-    MultiSelect,
-    DatePicker,
-    DateRangePicker,
-    Checkbox,
-    Switch,
-    ValidatorText,
-    Grid,
-    SimpleGrid,
-    Col,
-    Collapse,
-    Container,
+registerValidateRules({
+  requiredFile(value: FileUpload) {
+    if (!value) return '';
+    return value.error ? 'The field value is required' : '';
   },
 });
 const Form = observer(
@@ -80,16 +35,7 @@ const Form = observer(
       <div className="relative">
         <LoadingOverlay visible={!!isFetching} overlayBlur={0.5} />
         <FormProvider form={form}>
-          {schema.grid && (
-            <Grid className={schema.className}>
-              <SchemaField schema={schema} />
-            </Grid>
-          )}
-          {!schema.grid && (
-            <div className={schema.className}>
-              <SchemaField schema={schema} />
-            </div>
-          )}
+          <SchemaField schema={schema} />
         </FormProvider>
         <div className="flex mt-8 justify-center">
           <Button
@@ -99,7 +45,9 @@ const Form = observer(
             onClick={(e: MouseEvent<HTMLButtonElement>) => {
               e.stopPropagation();
               e.preventDefault();
-              form.submit(onSubmit).catch(() => false);
+              form.submit(onSubmit).catch((reason) => {
+                console.log(reason);
+              });
             }}
           >
             Save

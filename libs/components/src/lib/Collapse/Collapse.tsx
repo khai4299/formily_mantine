@@ -12,7 +12,7 @@ interface Props {
 }
 
 const Collapse: FC<CollapseProps & Props> = (props) => {
-  const [opened, setOpened] = useState(false);
+  const [opened, setOpened] = useState(!!props.defaultChecked);
 
   return (
     <div>

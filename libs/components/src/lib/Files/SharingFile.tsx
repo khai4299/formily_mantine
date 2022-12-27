@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { FileInput, Group, Loader, Text } from '@mantine/core';
 import { Dropzone, DropzoneProps } from '@mantine/dropzone';
 import {
@@ -11,22 +11,25 @@ import { useMutation } from 'react-query';
 import {
   BaseFormItemProps,
   convertAttachmentName,
+  convertFile,
+  FileUpload,
   takeMessageForm,
   useFieldValidate,
 } from '@formily-mantine/cdk';
 import { FileRejection } from 'react-dropzone';
 import { useField } from '@formily/react';
-import { Field } from '@formily/core';
+import { Field, registerValidateRules } from '@formily/core';
 
 interface Props {
   label: string;
   required?: boolean;
-  value: string;
+  value: FileUpload;
   serverRequest: (file: File) => Promise<string>;
-  onChange: (file: string | null) => void;
+  onChange: (file: FileUpload) => void;
 }
 
 const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
+  const [file, setFile] = useState<FileUpload | null>();
   const error = useFieldValidate();
   const field = useField<Field>();
   const {
@@ -34,22 +37,20 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
     isLoading,
     error: errorUpload,
   } = useMutation(props.serverRequest);
+
   useEffect(() => {
-    if (props.value) {
-      field.setData({
-        file: {
-          name: convertAttachmentName(props.value),
-        },
-      });
+    if (props.required) {
+      field.setValidatorRule('requiredFile', (value: FileUpload) => value);
     }
   }, []);
+  useEffect(() => {
+    setFile(props.value);
+  }, [props.value]);
   const onUpdateSuccess = (file: File, response: string) => {
-    field.setData({ file: file, error: false });
-    props.onChange(response);
+    props.onChange({ file: file, path: response, error: false });
   };
   const onUpdateFail = (file: File) => {
-    field.setData({ file: file, error: true });
-    props.onChange(null);
+    props.onChange({ file: file, error: true, path: null });
   };
   const onDrop = (fileDrops: File[]) => {
     upload(fileDrops[0], {
@@ -66,8 +67,8 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
   };
   const onChange = (file: File) => {
     if (!file) {
-      props.onChange(null);
-      field.setData(null);
+      props.onChange({ file: null, error: false, path: null });
+      setFile(null);
     } else {
       if (props.accept && !(props.accept as string[]).includes(file.type)) {
         onUpdateFail(file);
@@ -90,7 +91,7 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
         {props.required && <span className="text-red-500"> *</span>}
       </label>
       <div>
-        {!field.data && (
+        {!file?.file && (
           <Dropzone
             loading={isLoading}
             className="border border-dashed border-blue-600 mb-5px p-0 "
@@ -109,13 +110,13 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
             </Group>
           </Dropzone>
         )}
-        {field.data && (
+        {file?.file && (
           <FileInput
-            value={field.data.file}
+            value={file?.file}
             icon={
               isLoading ? (
                 <Loader size="sm" />
-              ) : field.data.error ? (
+              ) : file.error ? (
                 <IconInfoCircle className="text-red-600" />
               ) : (
                 <IconCircleCheck className="text-green-600" />
@@ -123,8 +124,7 @@ const SharingFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
             }
             accept={props.accept?.toString()}
             error={
-              field.data.error &&
-              (errorUpload ? 'Update fail' : 'Wrong file type')
+              file.error && (errorUpload ? 'Update fail' : 'Wrong file type')
             }
             clearable={true}
             onChange={onChange}

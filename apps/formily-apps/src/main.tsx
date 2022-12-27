@@ -4,6 +4,7 @@ import { MantineProvider } from '@mantine/core';
 
 import App from './app/app';
 import './styles.scss';
+import 'react-photo-view/dist/react-photo-view.css';
 import { NotificationsProvider } from '@mantine/notifications';
 
 const root = ReactDOM.createRoot(

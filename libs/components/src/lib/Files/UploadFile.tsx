@@ -1,13 +1,14 @@
 import React, { FC, useEffect, useState } from 'react';
 import { FileInput, Group, Loader, Text } from '@mantine/core';
-import { Dropzone, DropzoneProps, FileWithPath } from '@mantine/dropzone';
+import { Dropzone, DropzoneProps } from '@mantine/dropzone';
 import { IconCheck, IconCloudUpload, IconInfoCircle } from '@tabler/icons';
 import { StyledUpload } from './styles';
-import { useMutation, useQuery } from 'react-query';
+import { useMutation } from 'react-query';
 import { FileRejection } from 'react-dropzone';
 import {
   BaseFormItemProps,
   convertAttachmentName,
+  FileUpload,
   getFile,
   takeMessageForm,
   useFieldValidate,
@@ -18,42 +19,56 @@ import { Field } from '@formily/core';
 interface Props {
   label: string;
   required?: boolean;
-  onChange: (file: string | null) => void;
-  value: string;
+  onChange: (file: FileUpload) => void;
+  value: FileUpload;
   error?: boolean;
-  serverRequest: (file: File) => Promise<any>;
+  serverRequest: (file: File) => Promise<string>;
 }
 
 const UploadFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
   const field = useField<Field>();
+
   const {
     mutate: upload,
     isLoading,
     error: errorUpload,
   } = useMutation(props.serverRequest);
+  const [file, setFile] = useState<FileUpload | null>();
+
   const { mutate: getUpload } = useMutation(getFile);
   const error = useFieldValidate();
   useEffect(() => {
-    if (props.value && !field.data) {
-      getUpload(props.value, {
-        onSuccess: (response) => {
-          field.setData({
-            file: new File([response], convertAttachmentName(props.value)),
-            error: false,
-          });
-        },
-      });
+    if (props.required) {
+      field.setValidatorRule('requiredFile', (value: FileUpload) => value);
+    }
+  }, []);
+  useEffect(() => {
+    if (props.value) {
+      if (!props.value.file && props.value.path) {
+        getUpload(props.value.path, {
+          onSuccess: (response) => {
+            setFile({
+              file: new File(
+                [response],
+                convertAttachmentName(props.value.path || '')
+              ),
+              error: false,
+              path: props.value.path,
+            });
+          },
+        });
+      } else {
+        setFile(props.value);
+      }
     }
   }, [props.value]);
   const onUpdateSuccess = (file: File, response: string) => {
-    field.setData({ file: file, error: false });
-    props.onChange(response);
+    props.onChange({ file: file, path: response, error: false });
   };
   const onUpdateFail = (file: File) => {
-    field.setData({ file: file, error: true });
-    props.onChange(null);
+    props.onChange({ file: file, error: true, path: null });
   };
-  const onDrop = (fileDrops: FileWithPath[]) => {
+  const onDrop = (fileDrops: File[]) => {
     upload(fileDrops[0], {
       onSuccess: (response) => {
         onUpdateSuccess(fileDrops[0], response);
@@ -68,8 +83,8 @@ const UploadFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
   };
   const onChange = (file: File) => {
     if (!file) {
-      props.onChange(null);
-      field.setData(null);
+      props.onChange({ file: null, error: false, path: null });
+      setFile(null);
     } else {
       if (props.accept && !(props.accept as string[]).includes(file.type)) {
         onUpdateFail(file);
@@ -91,7 +106,7 @@ const UploadFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
         {props.label}
         {props.required && <span className="text-red-500"> *</span>}
       </label>
-      {!field.data && (
+      {!file?.file && (
         <Dropzone
           loading={isLoading}
           className="border border-dashed border-blue-600 mb-5px p-2"
@@ -110,22 +125,21 @@ const UploadFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
           </Group>
         </Dropzone>
       )}
-      {field.data && (
+      {file?.file && (
         <FileInput
-          value={field.data.file}
+          value={file?.file}
           accept={props.accept?.toString()}
           icon={
             isLoading ? (
               <Loader size="sm" />
-            ) : field.data.error ? (
+            ) : file?.error ? (
               <IconInfoCircle className="text-red-600" />
             ) : (
               <IconCheck className="text-green-600" />
             )
           }
           error={
-            field.data.error &&
-            (errorUpload ? 'Update fail' : 'Wrong file type')
+            file?.error && (errorUpload ? 'Update fail' : 'Wrong file type')
           }
           clearable={true}
           onChange={onChange}
@@ -136,14 +150,12 @@ const UploadFile: FC<DropzoneProps & BaseFormItemProps & Props> = (props) => {
           {takeMessageForm(field, props.feedbackText)}
         </div>
       )}
-      {props.value && field.data && (
-        <div>
-          <img
-            className="object-contain w-full h-36 mx-auto mt-4"
-            src={URL.createObjectURL(field.data.file)}
-            alt=""
-          />
-        </div>
+      {file?.file && (
+        <img
+          className="object-contain w-full h-36 mx-auto mt-4"
+          src={URL.createObjectURL(file?.file)}
+          alt=""
+        />
       )}
     </StyledUpload>
   );

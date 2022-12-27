@@ -1,4 +1,4 @@
-import { BaseReponse } from './base-reponse';
+import { BaseReponse } from './baseReponse';
 
 export interface Pagination<T = any> {
   items: T[];
