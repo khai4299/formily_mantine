@@ -8,7 +8,7 @@ import { FileUpload } from '@formily-mantine/cdk';
 interface Props {
   form: FormType;
   schema: ISchema;
-  onSubmit: (data: Record<string, unknown>) => void;
+  onSubmit: (data: any) => void;
   onCancel?: () => void;
   hideCancelButton?: boolean;
   isLoading?: boolean;
@@ -45,9 +45,7 @@ const Form = observer(
             onClick={(e: MouseEvent<HTMLButtonElement>) => {
               e.stopPropagation();
               e.preventDefault();
-              form.submit(onSubmit).catch((reason) => {
-                console.log(reason);
-              });
+              form.submit(onSubmit).catch(() => false);
             }}
           >
             Save

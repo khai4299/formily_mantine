@@ -11,18 +11,33 @@
     "importHelpers": true,
     "target": "es2015",
     "module": "esnext",
-    "lib": ["es2017", "dom"],
+    "lib": [
+      "es2017",
+      "dom"
+    ],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@formily-mantine/cdk": ["libs/cdk/src/index.ts"],
-      "@formily-mantine/components": ["libs/components/src/index.ts"],
-      "@formily-mantine/core": ["libs/core/src/index.ts"],
-      "@formily-mantine/home": ["libs/modules/home/src/index.ts"],
-      "@formily-mantine/modules/auth": ["libs/modules/auth/src/index.ts"],
-      "@formily-mantine/modules/common": ["libs/modules/common/src/index.ts"]
+      "@formily-mantine/cdk": [
+        "libs/cdk/src/index.ts"
+      ],
+      "@formily-mantine/components": [
+        "libs/components/src/index.ts"
+      ],
+      "@formily-mantine/core": [
+        "libs/core/src/index.ts"
+      ],
+      "@formily-mantine/modules/auth": [
+        "libs/modules/auth/src/index.ts"
+      ],
+      "@formily-mantine/modules/common": [
+        "libs/modules/common/src/index.ts"
+      ]
     }
   },
-  "exclude": ["node_modules", "tmp"]
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
 }

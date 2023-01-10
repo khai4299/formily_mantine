@@ -5,10 +5,10 @@ export const convertOptions = (
   matcherBy: string,
   labelProp: string,
   disabledProps?: string
-) => {
+): SelectItem[] => {
   return options.map((option) => {
     return {
-      ...option,
+      [matcherBy]: option[matcherBy],
       value: option[matcherBy],
       label: option[labelProp] || '',
       disabled: disabledProps ? option[disabledProps] : option.disabled,

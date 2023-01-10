@@ -9,7 +9,6 @@ import {
   BaseFormItemProps,
   convertOptions,
   takeMessageForm,
-  useFieldValidate,
 } from '@formily-mantine/cdk';
 import { Field } from '@formily/core';
 import { useQuery } from 'react-query';
@@ -19,34 +18,28 @@ interface Props {
   matcherBy: string;
   onChange: (value: SelectItem) => void;
   options: SelectItem[];
-  fetchRequest: () => Promise<any[]>;
+  fetchRequest: () => Promise<SelectItem[]>;
   keyFetch: string;
+  value: SelectItem;
 }
 
 const Select: FC<Props & BaseFormItemProps & SelectProps> = observer(
   (props) => {
     const [options, setOptions] = useState<SelectItem[]>([]);
     const field = useField<Field>();
-    const error = useFieldValidate();
     const { data: dataFetch } = useQuery(
       field.props.name.toString(),
       props.fetchRequest
     );
     useEffect(() => {
       if (dataFetch) {
-        setOptions(
-          convertOptions(
-            dataFetch as SelectItem[],
-            props.matcherBy,
-            props.labelProp
-          )
-        );
+        setOptions(convertOptions(dataFetch, props.matcherBy, props.labelProp));
       }
     }, [dataFetch]);
     return (
       <SelectMantine
         {...props}
-        value={field.value && field.value[props.matcherBy]}
+        value={props.value && props.value[props.matcherBy]}
         required={field.required}
         data={options || []}
         nothingFound={'Nothing found'}
@@ -63,7 +56,9 @@ const Select: FC<Props & BaseFormItemProps & SelectProps> = observer(
             }
           }
         }}
-        error={error && takeMessageForm(field, props.feedbackText)}
+        error={
+          field.errors.length > 0 && takeMessageForm(field, props.feedbackText)
+        }
       />
     );
   }

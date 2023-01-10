@@ -1,11 +1,11 @@
 import React, { FC, useEffect, useState } from 'react';
 import {
-  Autocomplete,
+  Autocomplete as AutocompleteMantine,
   AutocompleteItem,
   AutocompleteProps,
 } from '@mantine/core';
 import { SelectSharedProps } from '@mantine/core/lib/Select/Select';
-import { useField } from '@formily/react';
+import { observer, useField } from '@formily/react';
 import { useMutation } from 'react-query';
 import { BaseFormItemProps } from '@formily-mantine/cdk';
 import { Field } from '@formily/core';
@@ -13,27 +13,25 @@ import {
   convertOptions,
   takeMessageForm,
   useDebounce,
-  useFieldValidate,
 } from '@formily-mantine/cdk';
 
 interface ComboBoxProps {
   options: AutocompleteItem[];
   labelProp: string;
   matcherBy: string;
-  serverRequest: (search: string) => Promise<any[]>;
+  serverRequest: (search: string) => Promise<AutocompleteItem[]>;
 }
 
-const ComboBox: FC<
+const Autocomplete: FC<
   BaseFormItemProps &
     AutocompleteProps &
     SelectSharedProps<AutocompleteItem, AutocompleteItem> &
     ComboBoxProps
-> = (props) => {
+> = observer((props) => {
   const field = useField<Field>();
   const [options, setOptions] = useState<AutocompleteItem[]>([]);
   const [searchValue, setSearchValue] = useState('');
   const searchQuery = useDebounce(searchValue, 500);
-  const error = useFieldValidate();
 
   useEffect(() => {
     mutate(searchValue);
@@ -51,16 +49,17 @@ const ComboBox: FC<
     props.onChange?.(value);
   };
   return (
-    <Autocomplete
+    <AutocompleteMantine
       {...props}
-      required={field.required}
       data={options || []}
       onChange={setSearchValue}
       onItemSubmit={onItemSubmit}
       value={searchValue}
       limit={options?.length}
-      error={error && takeMessageForm(field, props.feedbackText)}
+      error={
+        field.errors.length > 0 && takeMessageForm(field, props.feedbackText)
+      }
     />
   );
-};
-export default React.memo(ComboBox);
+});
+export default React.memo(Autocomplete);

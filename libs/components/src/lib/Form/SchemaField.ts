@@ -1,6 +1,6 @@
 import { Checkbox } from '../Checkbox';
 import { MultiSelect, Select } from '../Select';
-import { ComboBox } from '../ComboBox';
+import { Autocomplete } from '../Autocomplete';
 import {
   ColorInput,
   Input,
@@ -14,7 +14,7 @@ import { RepeatItem } from '../RepeatItem';
 import { Switch } from '../Switch';
 import { DatePicker, DateRangePicker } from '../DatePicker';
 import { Col, Grid, SimpleGrid } from '@mantine/core';
-import ValidatorText from './ValidatorText';
+import { Notification } from '../Notification';
 import { Collapse } from '../Collapse';
 import { Container } from '../Container';
 import { createSchemaField } from '@formily/react';
@@ -22,7 +22,7 @@ import { createSchemaField } from '@formily/react';
 export const SchemaField = createSchemaField({
   components: {
     Select,
-    ComboBox,
+    Autocomplete,
     Input,
     NumberInput,
     TimeInput,
@@ -37,7 +37,7 @@ export const SchemaField = createSchemaField({
     DateRangePicker,
     Checkbox,
     Switch,
-    ValidatorText,
+    Notification,
     Grid,
     SimpleGrid,
     Col,

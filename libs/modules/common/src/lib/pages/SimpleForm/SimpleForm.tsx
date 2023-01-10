@@ -4,11 +4,14 @@ import { useMutation, useQuery } from 'react-query';
 import { getSkill, updateSkill } from '../../services';
 import { createForm } from '@formily/core';
 import { showNotification } from '@formily-mantine/cdk';
+import { Skill } from '../../types';
 
 const form = createForm();
 
 const SimpleForm = () => {
-  const { data, isFetching } = useQuery('skill', getSkill);
+  const { data, isFetching } = useQuery('skill', () =>
+    getSkill('272efd43-cce6-41d9-9da1-d86bff00b273')
+  );
   const { mutate, isLoading } = useMutation(updateSkill);
   const schema = {
     properties: {
@@ -49,7 +52,7 @@ const SimpleForm = () => {
       form.setInitialValues({ ...data, status: data.status === 2 });
     }
   }, [data]);
-  const onSubmit = (formData: any) => {
+  const onSubmit = (formData: Skill) => {
     const payload = {
       ...formData,
       status: formData.status ? 2 : 1,

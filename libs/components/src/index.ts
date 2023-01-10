@@ -1,5 +1,5 @@
 export * from './lib/Select';
-export * from './lib/ComboBox';
+export * from './lib/Autocomplete';
 export * from './lib/Input';
 export * from './lib/DatePicker';
 export * from './lib/RepeatItem';
@@ -10,3 +10,4 @@ export * from './lib/Form';
 export * from './lib/Container';
 export * from './lib/Link';
 export * from './lib/Collapse';
+export * from './lib/Notification';

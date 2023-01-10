@@ -8,7 +8,7 @@ import {
 import { ArrayField as ArrayFieldType } from '@formily/core';
 import { ActionIcon } from '@mantine/core';
 import { IconPlus, IconX } from '@tabler/icons';
-import { takeMessageForm, useFieldValidate } from '@formily-mantine/cdk';
+import { takeMessageForm } from '@formily-mantine/cdk';
 
 interface Props {
   label: string;
@@ -20,7 +20,7 @@ interface Props {
 
 const RepeatItem = observer((props: Props) => {
   const fields = useField<ArrayFieldType>();
-  const error = useFieldValidate();
+
   const schema = useFieldSchema();
   const dataSource = Array.isArray(fields.value) ? fields.value : [];
   return (
@@ -52,7 +52,7 @@ const RepeatItem = observer((props: Props) => {
           );
         })}
       </div>
-      {error && (
+      {fields.errors.length > 0 && (
         <div className="text-xs text-red-500">
           {takeMessageForm(fields, takeMessageForm(fields, props.feedbackText))}
         </div>

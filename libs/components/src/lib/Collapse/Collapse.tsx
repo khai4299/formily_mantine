@@ -9,17 +9,18 @@ import { IconPlus, IconMinus } from '@tabler/icons';
 
 interface Props {
   label: string;
+  classNameButton: string;
 }
 
 const Collapse: FC<CollapseProps & Props> = (props) => {
   const [opened, setOpened] = useState(!!props.defaultChecked);
 
   return (
-    <div>
+    <>
       <div className="flex justify-between items-center mb-2">
         <span>{props.label}</span>
         <ActionIcon
-          className="absolute top-0 right-0"
+          className={props.classNameButton}
           onClick={() => setOpened((prev) => !prev)}
         >
           {!opened && <IconPlus />}
@@ -30,7 +31,7 @@ const Collapse: FC<CollapseProps & Props> = (props) => {
       <CollapseMantine {...props} in={opened}>
         {props.children}
       </CollapseMantine>
-    </div>
+    </>
   );
 };
 

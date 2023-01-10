@@ -1,3 +1,5 @@
+import { FileUpload } from '@formily-mantine/cdk';
+
 export interface Skill {
   skill_id: string;
   name: string;
@@ -81,7 +83,7 @@ export interface Employee {
   username: string;
   firstName: string;
   lastName: string;
-  image: string;
+  image: FileUpload;
   status: number;
   organization: Org;
   roles: Role[];
@@ -120,7 +122,7 @@ export interface Employee {
   customer: Customer;
   onboardingDate: number;
   seniorityDate: number;
-  attachment: string[];
+  attachment: FileUpload[];
 }
 
 export interface ReportTo {

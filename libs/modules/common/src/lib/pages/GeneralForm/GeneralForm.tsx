@@ -10,7 +10,6 @@ import {
 import { IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import {
   convertFile,
-  FileUpload,
   getDateDifference,
   showNotification,
   uploadFile,
@@ -29,6 +28,8 @@ import {
   getTitles,
   postEmployee,
 } from '../../services';
+import { ISchema } from '@formily/react';
+import { Employee } from '../../types';
 
 const form = createForm({
   effects() {
@@ -97,7 +98,7 @@ const GeneralForm = () => {
   );
   const { mutate, isLoading } = useMutation(postEmployee);
 
-  const schema = {
+  const schema: ISchema = {
     type: 'object',
     properties: {
       layout: {
@@ -382,7 +383,6 @@ const GeneralForm = () => {
             },
             'x-component': 'MultiSelect',
             'x-component-props': {
-              required: true,
               label: 'Roles',
               placeholder: 'Enter roles...',
               fetchRequest: getRoles,
@@ -443,18 +443,22 @@ const GeneralForm = () => {
         image: {
           path: dataEmployee.image,
         },
-        attachment: (dataEmployee.attachment || [])
+        attachment: ((dataEmployee.attachment || []) as unknown as string[])
           .filter((item) => item)
           .map((item) => convertFile(item)),
       });
     }
   }, [dataEmployee, form]);
-  const onSubmit = (formData: Record<string, unknown>) => {
+  const onSubmit = (formData: Employee) => {
     const payload = {
       ...formData,
-      status: formData['status'] ? 1 : -1,
-      image: (formData['image'] as FileUpload).path,
-      attachment: ((formData['attachment'] || []) as FileUpload[])
+      status: formData.status ? 1 : -1,
+      image: formData.image.path,
+      roles: [
+        ...(formData.roles || []),
+        ...(dataEmployee?.roles || []).filter((role) => role.isDisable),
+      ],
+      attachment: (formData.attachment || [])
         .filter((item) => item && !item.error)
         .map((item) => item.path),
     };

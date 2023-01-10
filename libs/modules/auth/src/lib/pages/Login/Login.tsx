@@ -1,19 +1,14 @@
 import React, { MouseEvent } from 'react';
 import { StyledLogin } from './styles';
-import {
-  Checkbox,
-  Input,
-  Link,
-  PasswordInput,
-  ValidatorText,
-} from '@formily-mantine/components';
-import { createSchemaField, FormProvider } from '@formily/react';
+import { Link, SchemaField } from '@formily-mantine/components';
+import { FormProvider } from '@formily/react';
 import { createForm } from '@formily/core';
 import { Button } from '@mantine/core';
 import { useMutation } from 'react-query';
 import { login, preFlight, saveToken } from '../../services';
 import CryptoJS from 'crypto-js';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { IconX } from '@tabler/icons';
 
 interface AuthPayload {
   username: string;
@@ -22,14 +17,6 @@ interface AuthPayload {
 }
 
 const form = createForm();
-const SchemaField = createSchemaField({
-  components: {
-    Input,
-    PasswordInput,
-    Checkbox,
-    ValidatorText,
-  },
-});
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,7 +27,12 @@ const Login = () => {
   const schema = {
     properties: {
       error: {
-        'x-component': 'ValidatorText',
+        'x-component': 'Notification',
+        'x-component-props': {
+          className: 'my-4 border-none shadow-md bg-red-100',
+          icon: <IconX size={18} />,
+          color: 'red',
+        },
       },
       username: {
         required: true,
@@ -88,7 +80,7 @@ const Login = () => {
               authInfo.refresh_token,
               data.rememberMe
             );
-            navigate(location.state?.from || '/asdsad', { replace: true });
+            navigate(location.state?.from || '/', { replace: true });
           },
           onError: ({ response }: any) => {
             form.setValuesIn(

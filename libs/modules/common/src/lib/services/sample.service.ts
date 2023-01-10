@@ -3,7 +3,6 @@ import { BaseReponse, PagingResponse } from '@formily-mantine/cdk';
 import {
   Customer,
   Employee,
-  EmployeeManagement,
   Level,
   Office,
   Org,
@@ -16,10 +15,9 @@ import {
 
 const token = localStorage.getItem('access_token');
 
-export const getSkill = async () => {
+export const getSkill = async (id: string) => {
   const res = await axios.get<BaseReponse<Skill>>(
-    process.env['NX_API_GATEWAY_URL'] +
-      '/projects/skills/82700c04-0704-463f-befb-c2b0b2286fc9',
+    process.env['NX_API_GATEWAY_URL'] + `/projects/skills/${id}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -147,6 +145,20 @@ export const postEmployee = async (payload: Record<string, unknown>) => {
     process.env['NX_API_ACCOUNT_URL'] + `/employees`,
     payload,
     {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      responseType: 'blob',
+    }
+  );
+  return res.data;
+};
+export const exportExcel = async (payload: Record<string, unknown>) => {
+  const res = await axios.post(
+    process.env['NX_API_ACCOUNT_URL'] + `/employees/export-excel`,
+    payload,
+    {
+      responseType: 'blob',
       headers: {
         Authorization: `Bearer ${token}`,
       },

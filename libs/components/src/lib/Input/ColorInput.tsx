@@ -3,13 +3,9 @@ import {
   ColorInput as ColorInputMantine,
   ColorInputProps,
 } from '@mantine/core';
-import { useField } from '@formily/react';
+import { observer, useField } from '@formily/react';
 import { Field } from '@formily/core';
-import {
-  BaseFormItemProps,
-  takeMessageForm,
-  useFieldValidate,
-} from '@formily-mantine/cdk';
+import { BaseFormItemProps, takeMessageForm } from '@formily-mantine/cdk';
 
 const swatches = [
   '#25262b',
@@ -27,19 +23,21 @@ const swatches = [
   '#fab005',
   '#fd7e14',
 ];
-const ColorInput: FC<ColorInputProps & BaseFormItemProps> = (props) => {
-  const field = useField<Field>();
-  const error = useFieldValidate();
+const ColorInput: FC<ColorInputProps & BaseFormItemProps> = observer(
+  (props) => {
+    const field = useField<Field>();
 
-  return (
-    <ColorInputMantine
-      {...props}
-      swatches={swatches}
-      required={field.required}
-      readOnly={!!props.readOnly}
-      error={error && takeMessageForm(field, props.feedbackText)}
-    />
-  );
-};
+    return (
+      <ColorInputMantine
+        {...props}
+        swatches={swatches}
+        required={field.required}
+        error={
+          field.errors.length > 0 && takeMessageForm(field, props.feedbackText)
+        }
+      />
+    );
+  }
+);
 
 export default ColorInput;
