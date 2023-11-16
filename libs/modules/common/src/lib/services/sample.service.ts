@@ -73,7 +73,8 @@ export const getLevels = async () => {
 };
 export const getRoles = async () => {
   const res = await axios.get<PagingResponse<Role>>(
-    process.env['NX_API_ACCOUNT_URL'] + '/roles/v2?size=999',
+    process.env['NX_API_ACCOUNT_URL'] +
+      '/authorization/roles?status=active&paging_ignored=true',
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -118,7 +119,7 @@ export const getOffices = async () => {
 export const getEmployee = async () => {
   const res = await axios.get<BaseReponse<Employee>>(
     process.env['NX_API_ACCOUNT_URL'] +
-      '/employees/be0124d2-c1fe-4495-aca8-8d3b30ce0029',
+      '/users/profiles/13e7bc36-d6d1-4ea8-aded-104bdfc3ed75/general-information',
     {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -29,7 +29,14 @@ interface Props {
 const MultiSelect: FC<Partial<MultiSelectProps> & BaseFormItemProps & Props> =
   observer((props) => {
     const field = useField<Field>();
-    const [options, setOptions] = useState<SelectItem[]>([]);
+    const [options, setOptions] = useState<SelectItem[]>(
+      convertOptions(
+        props.options,
+        props.matcherBy,
+        props.labelProp,
+        props.disabledProp
+      )
+    );
     const [searchValue, setSearchValue] = useState('');
     const searchQuery = useDebounce(searchValue, 500);
     const { data: dataFetch } = useQuery(
